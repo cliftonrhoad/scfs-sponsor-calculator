@@ -435,6 +435,11 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
 html.embedded body{background:transparent}
 html.embedded body::before{display:none}
 html.embedded #bootVeil{background:transparent}
+/* auto-fit embed: the host snippet's script sizes the frame to full content
+   height (no internal scrolling) and streams viewport positions in; the deal
+   bar switches from viewport-fixed to absolute and tracks the real screen */
+html.autofit body{position:relative}
+html.autofit .deal-bar{position:absolute;left:0;right:0;bottom:auto}
 
 /* ---------- cloud boot / auth / saved proposals ---------- */
 #bootVeil{position:fixed;inset:0;z-index:100;background:var(--ground);display:flex;
@@ -1556,6 +1561,33 @@ async function boot(){
   sb.auth.onAuthStateChange((_evt,s)=>{ session=s; refreshRole(); });
 }
 boot();
+
+/* ---- auto-fit embed handshake ----
+   The Squarespace snippet ships a small script: it listens for our height and
+   answers with viewport positions. Height messages size the frame; the first
+   view message flips on autofit and the deal bar starts tracking the real
+   screen bottom. A bare iframe with no script just keeps the 88vh behavior. */
+if(window.top!==window.self){
+  let lastH=0;
+  const sendH=()=>{
+    const h=Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0);
+    if(h!==lastH){lastH=h;parent.postMessage({scfs:'height',h},'*');}
+  };
+  new ResizeObserver(sendH).observe(document.documentElement);
+  addEventListener('load',sendH);
+  addEventListener('message',e=>{
+    const d=e.data;
+    if(!d||d.scfs!=='view'||typeof d.top!=='number'||typeof d.vh!=='number')return;
+    if(!document.documentElement.classList.contains('autofit')){
+      document.documentElement.classList.add('autofit');
+      lastH=0; sendH();
+    }
+    const bar=document.getElementById('dealBar');
+    if(!bar)return;
+    const H=document.documentElement.scrollHeight, bh=bar.offsetHeight||0;
+    bar.style.top=Math.max(0,Math.min(d.top+d.vh-bh,H-bh))+'px';
+  });
+}
 </script>
 </body>
 </html>

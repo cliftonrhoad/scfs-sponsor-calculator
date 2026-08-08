@@ -12,6 +12,35 @@ The 2026 Sponsor Menu Calculator for [Summer Camp for Songwriters](https://www.s
 
 ## Embedding
 
+Recommended (auto-fit): the frame grows to the calculator's full height so the host
+page scrolls as one, and the script streams viewport positions in so the deal bar
+keeps floating at the real screen bottom.
+
+```html
+<iframe id="scfs-embed" src="https://cliftonrhoad.github.io/scfs-sponsor-calculator/"
+        style="width:100%;height:88vh;border:0;display:block" title="2026 Sponsor Menu Calculator"
+        loading="lazy"></iframe>
+<script>
+(function(){
+  var f=document.getElementById('scfs-embed');
+  var origin='https://cliftonrhoad.github.io';
+  function view(){
+    var r=f.getBoundingClientRect();
+    f.contentWindow.postMessage({scfs:'view',top:-r.top,vh:window.innerHeight},origin);
+  }
+  window.addEventListener('message',function(e){
+    if(e.origin!==origin||!e.data||e.data.scfs!=='height')return;
+    f.style.height=e.data.h+'px'; view();
+  });
+  window.addEventListener('scroll',view,{passive:true});
+  window.addEventListener('resize',view);
+})();
+</script>
+```
+
+Bare-iframe fallback (no script allowed): the calculator scrolls inside a
+screen-height frame instead.
+
 ```html
 <iframe src="https://cliftonrhoad.github.io/scfs-sponsor-calculator/"
         style="width:100%;height:88vh;border:0;display:block" title="2026 Sponsor Menu Calculator"
