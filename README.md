@@ -14,6 +14,6 @@ The 2026 Sponsor Menu Calculator for [Summer Camp for Songwriters](https://www.s
 
 ```html
 <iframe src="https://cliftonrhoad.github.io/scfs-sponsor-calculator/"
-        style="width:100%;height:1600px;border:0" title="2026 Sponsor Menu Calculator"
+        style="width:100%;height:88vh;border:0;display:block" title="2026 Sponsor Menu Calculator"
         loading="lazy"></iframe>
 ```

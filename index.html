@@ -431,6 +431,11 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .drawer{width:100vw}
 }
 
+/* ---------- embedded mode: host page owns the background ---------- */
+html.embedded body{background:transparent}
+html.embedded body::before{display:none}
+html.embedded #bootVeil{background:transparent}
+
 /* ---------- cloud boot / auth / saved proposals ---------- */
 #bootVeil{position:fixed;inset:0;z-index:100;background:var(--ground);display:flex;
   align-items:center;justify-content:center;text-align:center;padding:20px}
@@ -617,6 +622,10 @@ const showPrices=()=>isAdmin;
     m.name='viewport'; m.content='width=device-width, initial-scale=1';
     document.head.appendChild(m);
   }
+  /* Inside an iframe (the Squarespace embed) the host page supplies the
+     underwater ground — go transparent so the tool sits on it natively.
+     Standalone keeps its own ground. */
+  if(window.top!==window.self) document.documentElement.classList.add('embedded');
 })();
 /* ================= DATA ================= */
 /* The rate card (prices, weights, tiers, rider math) is NOT in this file.
