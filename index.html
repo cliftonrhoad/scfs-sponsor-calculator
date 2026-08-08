@@ -1589,7 +1589,11 @@ if(window.top!==window.self){
     const h=Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0);
     if(h!==lastH){lastH=h;parent.postMessage({scfs:'height',h},'*');}
   };
-  new ResizeObserver(sendH).observe(document.documentElement);
+  /* keep a live reference — an unreferenced observer can be GC'd, silently
+     killing height updates when sections expand */
+  const embedRO=new ResizeObserver(sendH);
+  embedRO.observe(document.documentElement);
+  if(document.body) embedRO.observe(document.body);
   addEventListener('load',sendH);
   /* re-broadcast for the first ~10s: survives host scripts that attach their
      listener late (Ajax page loaders, deferred code blocks) */
