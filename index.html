@@ -440,6 +440,9 @@ html.embedded #bootVeil{background:transparent}
    bar switches from viewport-fixed to absolute and tracks the real screen */
 html.autofit body{position:relative}
 html.autofit .deal-bar{position:absolute;left:0;right:0;bottom:auto}
+/* fixed-mode hiding slides the bar below the viewport; absolute-mode can't,
+   so hide the not-shown bar outright */
+html.autofit .deal-bar:not(.show){display:none}
 
 /* ---------- cloud boot / auth / saved proposals ---------- */
 #bootVeil{position:fixed;inset:0;z-index:100;background:var(--ground);display:flex;
