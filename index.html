@@ -441,11 +441,14 @@ html.embedded #bootVeil{background:transparent}
    bar switches from viewport-fixed to absolute and tracks the real screen */
 html.autofit body{position:relative}
 /* embed deal bar wears the section design language: floating card, quiet
-   1px outline, bright on hover */
-html.autofit .deal-bar{position:absolute;left:12px;right:12px;bottom:auto;
-  border:1px solid var(--ink-faint);border-radius:6px;padding:12px 16px 14px;
-  transition:border-color .12s}
-html.autofit .deal-bar:hover{border-color:var(--ink)}
+   1px outline, capped to the content columns' width. No hover treatment —
+   a viewport-tracking bar sliding under an idle cursor reads as a glitch. */
+html.autofit .deal-bar{position:absolute;left:0;right:0;bottom:auto;margin:0 auto;
+  width:min(1160px,calc(100% - 40px));
+  border:1px solid var(--ink-faint);border-radius:6px;padding:12px 16px 14px}
+@media(max-width:480px){
+  html.autofit .deal-bar{width:calc(100% - 24px)}
+}
 /* fixed-mode hiding slides the bar below the viewport; absolute-mode can't,
    so hide the not-shown bar outright */
 html.autofit .deal-bar:not(.show){display:none}
@@ -1112,7 +1115,7 @@ function renderCats(){
 }
 function renderRiders(){
   $('riderRows').innerHTML =
-    `<div class="toggle-row"><span class="toggle-name"><b>Full Buyout</b> — copyright assignment; every row above included</span>
+    `<div class="toggle-row"><span class="toggle-name"><b>Full Buyout</b> — copyright assignment; every row above included except attribution</span>
       <span class="toggle-price rider-price">${showPrices()?`<span class="rp-a">${config.buyoutMult}× footage</span><span class="rp-dot"> · </span><span class="rp-b">${fmt(config.buyoutFloor)} floor</span>`:''}</span>
       <button class="switch" id="buyoutSwitch" aria-pressed="${state.buyout}" aria-label="Full buyout"></button></div>`;
   $('buyoutSwitch').onclick=()=>{state.buyout=!state.buyout;update()};
