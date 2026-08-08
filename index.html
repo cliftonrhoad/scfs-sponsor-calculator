@@ -183,8 +183,13 @@ h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0;
 }
 
 /* ---------- summary ---------- */
-.summary{position:sticky;top:16px;background:var(--panel);border:1px dashed var(--ink-faint);
-  border-radius:6px;padding:18px}
+.side-col{position:sticky;top:16px;display:flex;flex-direction:column;gap:18px}
+.summary{background:var(--panel);border:1px dashed var(--ink-faint);border-radius:6px;padding:18px}
+.saved-panel .auth-box{border-top:none;margin-top:0;padding-top:0}
+.total-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.icon-btn{flex:none;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0;margin-bottom:12px}
+.icon-btn:hover{color:var(--ink)}
 .summary h2{font-size:22px;margin-bottom:10px}
 .sumline{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:13px;
   color:var(--white-dim);font-variant-numeric:tabular-nums}
@@ -282,6 +287,15 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
   border:1px solid var(--ink);border-radius:6px;padding:8px;display:none;gap:6px;flex-wrap:wrap;
   box-shadow:0 -4px 24px rgba(0,0,0,.35)}
 .bar-cat-pop.open{display:flex}
+
+/* ---------- footage column tooltips ---------- */
+.act-table th .th-lbl{text-decoration:underline dotted 1px;text-underline-offset:3px;text-decoration-color:var(--ink-faint)}
+.act-table th[data-tip]{cursor:help}
+.act-table th[data-tip]:hover::after{
+  content:attr(data-tip);position:absolute;left:50%;top:calc(100% + 2px);transform:translateX(-50%);
+  width:180px;background:var(--ground);border:1px solid var(--ink);border-radius:4px;
+  padding:7px 9px;font-family:var(--data);font-size:11px;font-weight:400;letter-spacing:0;
+  text-transform:none;color:var(--white-dim);line-height:1.45;z-index:9;white-space:normal;text-align:left}
 
 /* ---------- deal bar: intermediate widths ----------
    one rule everywhere: the reset button and tier chips share a row at every
@@ -391,7 +405,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
 /* tablet / narrow window: single column with inline summary (grid flips at 900px above);
    soften the hero so four cards don't crush */
 @media(max-width:900px){
-  .summary{position:static}
+  .side-col{position:static}
 }
 /* phone: compress chrome, icon-only pills, scroll tracks keep desktop geometry */
 @media(max-width:480px){
@@ -441,7 +455,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .seg .seg-spacer{display:none}
   .seg button{font-size:14px;padding:8px 4px;margin:0}
   .lede-indent{padding-left:0}
-  .summary{position:static}
+  .side-col{position:static}
   .total{font-size:36px}
   .drawer{width:100vw}
 }
@@ -528,6 +542,9 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 .modal p b{color:var(--ink);font-weight:600}
 .modal .m-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .modal .m-btns .btn{width:auto;margin:0;padding:8px 16px}
+.m-danger{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:12px;border-top:1px solid var(--ink-faint)}
+.m-danger .btn{display:inline-flex;align-items:center;gap:7px;width:auto;margin:0;padding:7px 12px}
+.m-danger-note{font-family:var(--hand);font-size:15px;color:var(--ink-dim);line-height:1.15}
 @media(max-width:480px){
   body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:minmax(0,1fr) auto}
 }
@@ -619,17 +636,24 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   <div class="callout">We can also distribute product or onboard writers with discount codes or free trials; we're happy to facilitate giveaways or contests to increase engagement — or otherwise drive brand awareness for our partners.</div>
 </main>
 
-<aside class="summary" aria-label="Deal summary">
+<aside class="side-col" aria-label="Deal summary">
+<div class="summary">
   <h2>The Damage</h2>
   <div id="sumLines"></div>
   <hr class="sum-divider">
   <span class="total-label">season total</span>
-  <div class="total" id="totalOut">$0</div>
+  <div class="total-row">
+    <div class="total" id="totalOut">$0</div>
+    <button class="icon-btn" id="agreementBtn" title="Draft the sponsorship agreement" aria-label="Draft the sponsorship agreement"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></button>
+  </div>
   <div class="tier-badge" id="tierBadge"></div>
-  <div class="auth-box" id="authBox"></div>
-  <div class="slot-box" id="slotBox"></div>
   <button class="btn wide btn-quiet" id="printBtn">Print One-Pager</button>
   <button class="btn wide primary" id="rateBtn">Edit Rate Card</button>
+</div>
+<div class="summary saved-panel">
+  <div class="auth-box" id="authBox"></div>
+  <div class="slot-box" id="slotBox"></div>
+</div>
 </aside>
 
 </div>
@@ -883,7 +907,11 @@ function renderSpots(){
     state.spots[b.dataset.i]= !state.spots[b.dataset.i];update()});
 }
 
-const COLS=[['Camera Roll','cameraRoll',' per'],['Photo Selects','photoSelect',' per'],['Video Selects','videoSelect',' per'],['Video Recaps','editedRecap',' per']];
+const COLS=[
+  ['Camera Roll','cameraRoll',' per','Raw, unedited clips straight off the iPhone — real-time coverage with zero polish.'],
+  ['Photo Selects','photoSelect',' per','Professionally shot photographs, hand-picked and edited.'],
+  ['Video Selects','videoSelect',' per','Professionally shot video clips, color-corrected and trimmed.'],
+  ['Video Recaps','editedRecap',' per','Multiple clips cut together into a finished, edited recap.']];
 const REFRESH_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
 function groupHeadHTML(g){
   const locked=!!(state.actLocks&&state.actLocks[g]);
@@ -894,7 +922,7 @@ function groupHeadHTML(g){
 function renderActs(){
   const p=config.prices;
   const head=`<tr class="act-head"><th class="g-cell">${groupHeadHTML(GROUPS[0])}</th>`
-    +COLS.map(([l,k,u])=>`<th>${l}<span class="th-price">${showPrices()?fmt(p[k].v)+u:''}</span></th>`).join('')+'</tr>';
+    +COLS.map(([l,k,u,tip])=>`<th data-tip="${tip}"><span class="th-lbl">${l}</span><span class="th-price">${showPrices()?fmt(p[k].v)+u:''}</span></th>`).join('')+'</tr>';
   let rows='';
   GROUPS.forEach((g,gi)=>{
     if(gi>0) rows+=`<tr class="group-row"><td colspan="5">${groupHeadHTML(g)}</td></tr>`;
@@ -1469,6 +1497,7 @@ function printOnePager(){
   setTimeout(()=>URL.revokeObjectURL(a.href),5000);
 }
 $('printBtn').onclick=printOnePager;
+$('agreementBtn').onclick=()=>openAgreement();
 $('barClear').onclick=()=>{state=BLANK_STATE();update(true)};
 $('rateBtn').onclick=()=>{if(!isAdmin)return;$('drawer').classList.add('open');$('veil').classList.add('open')};
 $('closeDrawer').onclick=$('veil').onclick=()=>{$('drawer').classList.remove('open');$('veil').classList.remove('open')};
@@ -1573,12 +1602,14 @@ function modalPrompt(o){ return new Promise(res=>{
   openModal(`<h3>${o.title}</h3>${o.sub?`<div class="m-sub">${o.sub}</div>`:''}${o.body||''}
     <input class="auth-input" id="mInput" type="text" maxlength="60" value="${esc(o.value||'')}" aria-label="${esc(o.title)}">
     <div class="m-btns"><button class="btn btn-quiet" id="mCancel">Cancel</button>
-    <button class="btn primary" id="mOk">${o.confirm||'Save'}</button></div>`);
+    <button class="btn primary" id="mOk">${o.confirm||'Save'}</button></div>
+    ${o.del?`<div class="m-danger"><button class="btn btn-quiet" id="mDel">${TRASH_LG} Clear this package</button><span class="m-danger-note">the trash deletes the whole saved package — slot and all</span></div>`:''}`);
   const inp=$('mInput');
   const done=v=>{closeModal();res(v)};
   inp.focus(); inp.select();
-  $('mOk').onclick=()=>done(inp.value.trim()||null);
+  $('mOk').onclick=()=>{const v=inp.value.trim(); done(v?{value:v}:null)};
   $('mCancel').onclick=()=>done(null);
+  const d=$('mDel'); if(d)d.onclick=()=>done({del:true});
   inp.onkeydown=e=>{if(e.key==='Enter')$('mOk').click(); if(e.key==='Escape')done(null)};
   $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))done(null)};
 });}
@@ -1619,6 +1650,7 @@ async function loadSlots(){
   }
   renderSlots();
 }
+const PLANE_SVG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>';
 function renderSlots(){
   const box=$('slotBox'); if(!box) return;
   if(!session){box.innerHTML='';return}
@@ -1628,24 +1660,21 @@ function renderSlots(){
     let card;
     if(!r){
       card=`<button class="slot-card empty" disabled>Saved Package ${i}</button>
-        <span class="slot-del" aria-hidden="true" style="visibility:hidden">${TRASH_LG}</span>`;
-    } else if(editingSlot===i){
-      card=`<div class="slot-card filled editing"><input class="slot-edit" id="slotEditInp" maxlength="60" value="${esc(r.name)}" aria-label="Rename package ${i}"></div>
-        <span class="slot-del" aria-hidden="true" style="visibility:hidden">${TRASH_LG}</span>`;
+        <span class="slot-del" aria-hidden="true" style="visibility:hidden">${PLANE_SVG}</span>`;
     } else {
-      card=`<button class="slot-card filled" data-load="${i}" title="Load \u201c${esc(r.name)}\u201d">
+      card=`<button class="slot-card filled" data-load="${i}" title="Load “${esc(r.name)}”">
           <span class="slot-label">${esc(r.name)}</span>
-          <span class="slot-pencil" role="button" tabindex="0" data-rename="${i}" title="Rename" aria-label="Rename package ${i}">${PENCIL_SM}</span>
+          <span class="slot-pencil" role="button" tabindex="0" data-rename="${i}" title="Rename or clear" aria-label="Rename or clear package ${i}">${PENCIL_SM}</span>
         </button>
-        <button class="slot-del" data-del="${i}" title="Clear this slot" aria-label="Clear package ${i}">${TRASH_LG}</button>`;
+        <button class="slot-del" data-plane="${i}" title="Email this package’s agreement" aria-label="Email the agreement for package ${i}">${PLANE_SVG}</button>`;
     }
     h+=`<div class="slot-row">
-      <button class="slot-save" data-save="${i}" title="${r?`Save over \u201c${esc(r.name)}\u201d`:'Save the current board here'}" aria-label="Save current board to package ${i}">${SAVE_LG}</button>
+      <button class="slot-save" data-save="${i}" title="${r?`Save over “${esc(r.name)}”`:'Save the current board here'}" aria-label="Save current board to package ${i}">${SAVE_LG}</button>
       ${card}
     </div>`;
   }
   if(adminConfigs&&adminConfigs.length){
-    h+='<div class="slot-title" style="margin-top:12px">All Saved Packages</div><div class="slot-sub">every account\u2019s saves — admin eyes only</div>';
+    h+='<div class="slot-title" style="margin-top:12px">All Saved Packages</div><div class="slot-sub">every account’s saves — admin eyes only</div>';
     adminConfigs.forEach((r,i)=>{
       h+=`<div class="slot-list-row"><button class="slot-name" data-adm="${i}" title="Load">${esc(r.email)} — ${esc(r.name)}</button></div>`;
     });
@@ -1653,46 +1682,28 @@ function renderSlots(){
   box.innerHTML=h;
   box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>applyLoadedState(mySlots[+b.dataset.load].state));
   box.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveToSlot(+b.dataset.save));
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteSlot(+b.dataset.del));
+  box.querySelectorAll('[data-plane]').forEach(b=>b.onclick=()=>emailAgreement(+b.dataset.plane));
   box.querySelectorAll('[data-adm]').forEach(b=>b.onclick=()=>applyLoadedState(adminConfigs[+b.dataset.adm].state));
   box.querySelectorAll('[data-rename]').forEach(el=>{
-    const go=e=>{e.stopPropagation();e.preventDefault();editingSlot=+el.dataset.rename;renderSlots()};
+    const go=e=>{e.stopPropagation();e.preventDefault();renameSlot(+el.dataset.rename)};
     el.onclick=go;
     el.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')go(e)};
   });
-  const inp=box.querySelector('#slotEditInp');
-  if(inp){
-    inp.focus(); inp.select();
-    const commit=async()=>{
-      const slot=editingSlot; editingSlot=null;
-      const name=inp.value.trim();
-      if(slot&&name&&name!==mySlots[slot].name){
-        const {error}=await sb.from('saved_configs')
-          .update({name,updated_at:new Date().toISOString()})
-          .eq('user_id',session.user.id).eq('slot',slot);
-        if(!error) mySlots[slot].name=name;
-      }
-      renderSlots();
-    };
-    inp.onblur=commit;
-    inp.onkeydown=e=>{
-      if(e.key==='Enter'){inp.onblur=null;commit()}
-      if(e.key==='Escape'){inp.onblur=null;editingSlot=null;renderSlots()}
-    };
-  }
 }
-async function deleteSlot(slot){
+async function renameSlot(slot){
   const r=mySlots[slot]; if(!r) return;
-  const ok=await modalConfirm({
-    title:`Clear Saved Package ${slot}?`,
-    sub:'this one\u2019s forever too',
-    body:`<p><b>${esc(r.name)}</b> goes back to the lake — the slot opens up and that build is gone for good.</p>`,
-    confirm:'Clear the slot', cancel:'Keep it'});
-  if(!ok) return;
-  const {error}=await sb.from('saved_configs').delete()
-    .eq('user_id',session.user.id).eq('slot',slot);
-  if(error) modalConfirm({title:'Couldn\u2019t clear it',body:`<p>${esc(error.message)}</p>`,confirm:'Close',cancel:null});
-  else loadSlots();
+  const res=await modalPrompt({
+    title:`Saved Package ${slot}`,
+    sub:'rename it — or clear the slot below',
+    value:r.name, confirm:'Save name', del:true});
+  if(!res) return;
+  if(res.del){ deleteSlot(slot); return }
+  if(res.value && res.value!==r.name){
+    const {error}=await sb.from('saved_configs')
+      .update({name:res.value,updated_at:new Date().toISOString()})
+      .eq('user_id',session.user.id).eq('slot',slot);
+    if(!error){ r.name=res.value; renderSlots() }
+  }
 }
 async function saveToSlot(slot){
   const existing=mySlots[slot];
@@ -1704,12 +1715,13 @@ async function saveToSlot(slot){
       confirm:'Overwrite it', cancel:'Keep it'});
     if(!ok) return;
   }
-  const name=await modalPrompt({
+  const res=await modalPrompt({
     title:`Save to Package ${slot}`,
     sub:'name it something you\u2019ll recognize later',
     value:existing?existing.name:defaultSlotName(),
     confirm:'Save package'});
-  if(!name) return;
+  if(!res||!res.value) return;
+  const name=res.value;
   /* a saved package is a finished thought: lock every section so edits
      require deliberately unlocking */
   state.locks=LOCK_ALL();
@@ -1719,6 +1731,238 @@ async function saveToSlot(slot){
   if(error) modalConfirm({title:'Save didn\u2019t stick',body:`<p>${esc(error.message)}</p>`,confirm:'Close',cancel:null});
   else loadSlots();
 }
+
+/* ================= AGREEMENT GENERATOR ================= */
+/* A conversational draft agreement built from the live board. Professional
+   document styling on purpose — this is the un-branded artifact. Every
+   generated draft carries a review-by-counsel disclaimer. */
+const AGR_FOOTAGE_EXPLAIN={
+  cam:['camera-roll clips','raw, unedited video straight off our iPhones — real-time, feels-like-you’re-there coverage. They arrive exactly as shot: no color work, no trimming. Perfect for stories, community posts, and anything that benefits from being unpolished'],
+  pho:['photo selects','professional photographs from our shooters, hand-picked from the season’s full take and individually edited before delivery'],
+  vid:['video selects','professionally shot video clips, color-corrected and trimmed by our editors — single polished moments, ready to publish or to cut into your own work where your modification rights below allow'],
+  rec:['video recaps','finished edits: our editors cut multiple clips into a complete, ready-to-publish piece. These are the closest thing in the package to a turnkey ad']};
+const AGR_FEEDBACK_EXPLAIN={
+  survey:'a facilitated written survey, completed by the writers at camp: structured, candid product feedback from a room of working songwriters',
+  videoCall:'a live, twenty-minute video call between your team and the writers at camp — ask anything, hear it unfiltered',
+  videoSpot:'a twenty-minute pre-recorded video segment of yours, presented to the assembled writers on your behalf',
+  testimonial:'an on-camera testimonial filmed with a writer at camp, edited by us and delivered ready to post'};
+const AGR_RIGHTS_EXPLAIN=[
+  ['how exclusive your footage is',[
+    'your license is non-exclusive: Summer Camp may license the same or similar footage to others, including brands in your space',
+    'your license is category-exclusive: for as long as it runs, Summer Camp will not license the same or similar footage to brands that compete in your category',
+    'your license is fully exclusive for its term: the delivered footage is licensed to you alone, and Summer Camp will not license it to anyone else while the term runs']],
+  ['how long the license runs',[
+    'six months from the date of delivery',
+    'twelve months from the date of delivery',
+    'five years from the date of delivery']],
+  ['where you may put money behind it',[
+    'organic placements only — your owned, unpaid channels; no paid promotion of any kind',
+    'paid digital included — you may boost and run paid social, including whitelisting through Summer Camp’s handles for flights we approve in writing',
+    'paid broadcast included — everything in paid digital, plus television, streaming, and out-of-home placements']],
+  ['the kinds of placements it may appear in',[
+    'digital placements only',
+    'digital placements plus print and physical collateral',
+    'everything up to and including product packaging and point-of-sale']],
+  ['who inside your world may use it',[
+    'you and the agency working on your behalf',
+    'you, your agency, and your affiliates and retail partners',
+    'sub-licensing is permitted — you may extend usage to partners, on terms no broader than the ones in this agreement']],
+  ['how much you may change it',[
+    'use it as delivered — no edits beyond the formatting a platform requires',
+    'you may crop, caption, and resize',
+    'you may re-edit and remix the material fully']],
+  ['how the work is credited',[
+    'co-branded — posts credit Summer Camp for Songwriters as the collaborator',
+    'tag only — a simple account tag or caption mention is enough',
+    'sponsor-first — no attribution required on your placements']]];
+
+const agrBlank=w=>`<span class="blank" style="min-width:${w||180}px">&nbsp;</span>`;
+function buildAgreementHTML(pkgName){
+  const c=compute();
+  const P=showPrices();
+  const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const name=pkgName||defaultSlotName();
+  const qty={cam:c.cam,pho:c.pho,vid:c.vid,rec:c.rec};
+  const fbOn=FEEDBACK.filter(([k])=>state.feedback[k]>0);
+  const spotNames=SPOTS.filter((_,i)=>state.spots[i]);
+  const sch=state.scholarships;
+
+  let dHTML='';
+  const fmts=Object.entries(AGR_FOOTAGE_EXPLAIN).filter(([k])=>qty[k]>0);
+  if(fmts.length){
+    dHTML+=`<h3>Season footage</h3><p>Our crew shoots across the entire season — every activity listed in Exhibit A, four straight weeks on Lake Burton. From that take, your package includes:</p><ul>`
+      +fmts.map(([k,[label,expl]])=>`<li><b>${qty[k]} ${label}</b> — ${expl}.</li>`).join('')
+      +`</ul><p>Delivery: within ${agrBlank(60)} days after the season ends, via a shared digital folder. Every delivered item is cleared for the uses in Section 3 — the releases described in Section 4 are our job, not yours.</p>`;
+  }
+  if(spotNames.length){
+    dHTML+=`<h3>Scripted spot — presenting sponsor</h3><p>Each season we produce four short scripted films. Your package makes you the <b>presenting sponsor</b> of ${spotNames.length>1?'these films':'one of them'}: <i>${spotNames.map(esc).join('</i>, <i>')}</i>. Your brand opens and closes the film (“presented by”) and is credited wherever the film is published.</p>`;
+  }
+  if(fbOn.length){
+    dHTML+=`<h3>Captive audience sessions</h3><p>Some of what you’re buying isn’t footage at all — it’s the room: working songwriters, gathered for a week, instruments in reach. Your package includes:</p><ul>`
+      +fbOn.map(([k,label])=>`<li><b>${state.feedback[k]} × ${esc(label)}</b> — ${AGR_FEEDBACK_EXPLAIN[k]}.</li>`).join('')
+      +`</ul><p>These ship with standard mixed usage rights baked in (organic and paid digital use of the recordings), independent of your footage rights in Section 3. Scheduling is coordinated in good faith around the camp’s program.</p>`;
+  }
+  if(sch>0){
+    dHTML+=`<h3>Patron scholarships</h3><p>Your package funds <b>${sch} named scholarship${sch>1?'s':''}</b> — each one sends a working songwriter to camp for a full week, tuition covered, under the name “The ${agrBlank(140)} Songwriter Scholarship.” As the Patron you receive: the announcement post; the verbal thanks at opening ceremonies; and inclusion in the season’s Patronage Recap — a voiceover-driven short film celebrating the brands behind the writing${sch>=2?'; plus the thank-you email blast, your name and logo in the Recap’s credits, and tags and mentions in the Recap’s captions across Instagram, TikTok, YouTube, and LinkedIn':''}.</p>`;
+  }
+
+  let rHTML='';
+  if(state.buyout){
+    rHTML=`<p>This package includes a <b>full buyout</b> of the delivered footage — the strongest rights we offer. In plain terms: upon full payment, Summer Camp assigns the copyright in the delivered footage to you. It’s yours — edit it, run it anywhere, forever, in any medium, paid or organic.</p>
+      <p>Three things a buyout still doesn’t include, because they aren’t ours to sell outright: <b>(a)</b> the writers’ names, images, and likenesses remain <i>licensed</i> to you (broadly, per Section 4), never owned; <b>(b)</b> Summer Camp’s trademarks and name are licensed only for the attribution and co-branding described here; and <b>(c)</b> attribution on your placements works as follows: <b>${RIGHTS_MATRIX[ATTR][c.er.rows[ATTR]+1]}</b>.</p>`;
+  } else {
+    rHTML=`<p>You’re not buying footage — you’re licensing it, and the seven choices below define exactly how far that license reaches. This is the fine print that actually matters, so it’s written to be read.</p>`
+      +RIGHTS_MATRIX.map((row,ri)=>{
+        const lvl=c.er.rows[ri];
+        return `<p><b>${esc(row[0])}</b> — ${AGR_RIGHTS_EXPLAIN[ri][0]}. Your package: <b>${esc(row[lvl+1])}</b>. In practice, ${AGR_RIGHTS_EXPLAIN[ri][1][lvl]}.</p>`;
+      }).join('');
+    if(c.er.rows[DUR]<2){
+      rHTML+=`<p><b>Renewal.</b> When the license term ends, it may be renewed in six-month increments at the pre-agreed re-license fee of <b>${P?config.relicensePct+'%':agrBlank(50)}</b> of the original footage fee per renewal — a signature away, no renegotiation.</p>`;
+    }
+    rHTML+=`<p><b>Territory.</b> Worldwide. Organic digital doesn’t respect borders, and neither does this license.</p>`;
+  }
+  if(state.exclusivity){
+    rHTML+=`<p><b>Category exclusivity at camp.</b> Separately from the footage rights above: for the 2026 season, Summer Camp will not accept a sponsorship from a brand competing in your category (defined for this agreement as ${agrBlank(220)}). You are the category, full stop.</p>`;
+  }
+
+  const relLine = state.buyout ? '' : `<p>Second, the work. The delivered footage is licensed, not transferred: Summer Camp for Songwriters retains the copyright in all delivered material, along with its full season archive.</p>`;
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sponsorship Agreement — Summer Camp for Songwriters</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:0;background:#f4f3ef;color:#1a1a1a;font-family:Georgia,'Times New Roman',serif;font-size:13.5px;line-height:1.65}
+.page{max-width:760px;margin:0 auto;background:#fff;padding:60px 72px;min-height:100vh}
+.toolbar{position:sticky;top:0;background:#1a1a1a;color:#fff;padding:10px 16px;display:flex;gap:10px;justify-content:center;z-index:5}
+.toolbar button{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:13px;padding:8px 18px;border-radius:4px;border:1px solid #666;background:#2e2e2e;color:#fff;cursor:pointer}
+.toolbar button.primary{background:#fff;color:#111;border-color:#fff;font-weight:600}
+h1{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:24px;letter-spacing:.02em;margin:0 0 2px;text-transform:uppercase}
+.docsub{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:12.5px;color:#555;margin:0 0 28px}
+h2{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:13px;letter-spacing:.09em;text-transform:uppercase;border-bottom:1.5px solid #1a1a1a;padding-bottom:5px;margin:32px 0 12px}
+h3{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#333;margin:18px 0 6px}
+p{margin:0 0 11px}ul{margin:0 0 12px;padding-left:22px}li{margin-bottom:7px}
+.blank{display:inline-block;border-bottom:1px solid #333;height:1em;vertical-align:baseline}
+table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:12.5px}
+td,th{border-bottom:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top}
+th{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+td:last-child,th:last-child{text-align:right;white-space:nowrap}
+.total-line td{border-bottom:none;border-top:2px solid #1a1a1a;font-weight:700;font-size:14px}
+.sig{display:flex;gap:40px;margin-top:30px}.sig>div{flex:1}
+.sigline{border-bottom:1px solid #333;height:34px;margin-bottom:5px}
+.siglabel{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:#555}
+.disclaimer{margin-top:36px;padding:12px 14px;border:1px solid #bbb;background:#faf9f6;font-size:11.5px;color:#444}
+@media print{.toolbar{display:none}body{background:#fff}.page{padding:0;max-width:none;min-height:0}@page{margin:0.9in}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button class="primary" onclick="print()">Print / Save as PDF</button>
+  <button onclick="var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['<!doctype html>'+document.documentElement.outerHTML],{type:'text/html'}));a.download='SCFS-sponsorship-agreement.html';a.click()">Download file</button>
+</div>
+<div class="page">
+<h1>Sponsorship Agreement</h1>
+<p class="docsub">Summer Camp for Songwriters · 2026 Season · the “${esc(name)}” package · drafted ${today}</p>
+
+<p>This is a sponsorship agreement, written to be read. It covers who’s involved, exactly what Summer Camp for Songwriters delivers, how you may use what we deliver, what it costs, and the promises each side makes to the other. The blank lines are the parts we fill in together.</p>
+
+<h2>1. The parties and the season</h2>
+<p>This agreement is between <b>Summer Camp for Songwriters LLC</b> (“Summer Camp,” “we,” “us”) and ${agrBlank(260)} (“Sponsor,” “you”), a ${agrBlank(160)} with its principal place of business at ${agrBlank(300)}.</p>
+<p>The “2026 Season” means our four consecutive week-long songwriting camps on Lake Burton, Georgia, in September 2026, together with the content our crew captures across them. This agreement covers the sponsorship package the parties configured together — summarized in Exhibit A — and takes effect on ${agrBlank(150)} (the “Effective Date”).</p>
+
+<h2>2. What Summer Camp delivers</h2>
+${dHTML}
+<p>Quantities for everything above are itemized in Exhibit A. If we fail to deliver an item, your remedy is simple: we deliver a comparable replacement from the season’s take, or refund that item’s share of the fee — your choice.</p>
+
+<h2>3. How you may use what we deliver</h2>
+${rHTML}
+
+<h2>4. What stays ours — and what stays the writers’</h2>
+<p>First, the people. Every songwriter on camera has signed a release covering their name, image, and likeness for sponsor use consistent with Section 3 — that clearance is our responsibility, and we warrant it. What the writers haven’t done is sell themselves: their likenesses are licensed for your permitted uses, never assigned, and nothing here makes any writer your endorser beyond the delivered content.</p>
+${relLine}
+<p>Third, the marks. “Summer Camp for Songwriters,” our logos, and our trade dress remain ours, licensed to you only as needed for the attribution and co-branding this agreement describes. The same goes in reverse: we’ll use your name and marks only to deliver what’s promised here (and to say, accurately and proudly, that you were a 2026 sponsor).</p>
+<p>Fourth, the machines. Delivered footage is for the human audiences described in Section 3 — neither party will use the other’s material, or the writers’ likenesses, to train artificial-intelligence systems.</p>
+
+<h2>5. The investment</h2>
+<p>The season total for this package is <b>${fmt(c.total)}</b>, payable ${agrBlank(50)}% on signing with the remainder due by ${agrBlank(150)}. Amounts more than fifteen days late accrue simple interest at 1% per month. If the package later grows or renews, we’ll paper it as a short signed amendment rather than starting over.</p>
+
+<h2>6. The understandings</h2>
+<p><b>Term.</b> This agreement runs from the Effective Date until the last license in Section 3 expires${state.buyout?' (for bought-out footage, until delivery and payment are complete)':''}, unless ended earlier under this section.</p>
+<p><b>Ending it.</b> Either party may terminate if the other materially breaches and doesn’t cure within fifteen days of written notice. If you terminate without cause before the season, amounts already paid are non-refundable; if we can’t run the season at all, we refund everything not yet delivered. That’s the whole story.</p>
+<p><b>Reputation.</b> Either party may end this agreement immediately if continuing would, in its reasonable judgment, materially damage its reputation because of the other party’s public conduct. Fees for items already delivered stay earned; everything else is refunded.</p>
+<p><b>Weather and the world.</b> Camp happens outdoors, on a lake. If forces genuinely beyond our control — weather, venue loss, public-health orders — force changes, we’ll deliver the closest practical equivalent; where a deliverable truly can’t happen, Section 2’s replace-or-refund remedy applies.</p>
+<p><b>Limits.</b> Neither party is liable for indirect or consequential damages, and each party’s total liability under this agreement is capped at the fees paid or payable under it. Each party will defend and indemnify the other against third-party claims caused by its own breach — for us, that expressly includes the talent releases we warrant in Section 4; for you, it expressly includes any use of the footage beyond what Section 3 allows.</p>
+<p><b>The relationship.</b> We’re independent parties. Nothing here creates a partnership, joint venture, or agency.</p>
+<p><b>The paperwork.</b> This document, with Exhibit A, is the entire agreement and replaces every earlier discussion of this sponsorship. Changes count only in writing, signed by both parties. It’s governed by the laws of the State of ${agrBlank(140)} (we suggest Georgia — it’s where the lake is), and neither party may assign it without the other’s written consent, except to a successor in a sale of its business.</p>
+
+<h2>7. Signatures</h2>
+<div class="sig">
+  <div><div class="sigline"></div><div class="siglabel">Summer Camp for Songwriters LLC — signature</div><br><div class="sigline"></div><div class="siglabel">Name, title · date</div></div>
+  <div><div class="sigline"></div><div class="siglabel">Sponsor — signature</div><br><div class="sigline"></div><div class="siglabel">Name, title · date</div></div>
+</div>
+
+<h2>Exhibit A — the package</h2>
+${buildExhibitRows(c)}
+<div class="disclaimer"><b>A note on this draft.</b> It was generated from the 2026 Sponsor Menu Calculator on ${today} to move a real conversation forward, and it means what it says — but it isn’t signed legal advice. Both sides should have counsel look it over before signing. The blanks are intentional: they’re the parts we fill in together.</div>
+</div>
+<script>window.addEventListener('load',function(){setTimeout(function(){try{window.print()}catch(e){}},700)});<\/script>
+</body>
+</html>`;
+}
+function buildExhibitRows(c){
+  let rows='';
+  ACTIVITIES.forEach((a,i)=>{
+    const q=state.acts[i]; if(!q.some(Boolean)) return;
+    const parts=[];
+    const n=(v,w)=>v+' '+w+(v>1?'s':'');
+    if(q[0])parts.push(n(q[0],'camera-roll clip'));
+    if(q[1])parts.push(n(q[1],'photo select'));
+    if(q[2])parts.push(n(q[2],'video select'));
+    if(q[3])parts.push(n(q[3],'video recap'));
+    rows+=`<tr><td>${esc(a[0].replace(/\s*\(\d+\)$/,''))}</td><td>${parts.join(' · ')}</td></tr>`;
+  });
+  FEEDBACK.forEach(([k,label])=>{ if(state.feedback[k]>0) rows+=`<tr><td>${esc(label)}</td><td>× ${state.feedback[k]}</td></tr>`; });
+  SPOTS.forEach((sp,i)=>{ if(state.spots[i]) rows+=`<tr><td>Scripted spot — ${esc(sp)}</td><td>Presenting sponsor</td></tr>`; });
+  if(state.scholarships>0) rows+=`<tr><td>Named Patron scholarships</td><td>× ${state.scholarships}</td></tr>`;
+  if(state.exclusivity) rows+=`<tr><td>Category exclusivity at camp</td><td>2026 season</td></tr>`;
+  rows+=`<tr><td>Usage rights</td><td>${esc(rightsLabel(c.er))}${state.buyout?'':' — see Section 3'}</td></tr>`;
+  rows+=`<tr class="total-line"><td>Season total</td><td>${fmt(c.total)}</td></tr>`;
+  return `<table><tr><th>Deliverable</th><th>Quantity / terms</th></tr>${rows}</table>`;
+}
+function openAgreement(stArg, pkgName){
+  let html;
+  if(stArg){
+    const keep=state;
+    state={...BLANK_STATE(),...structuredClone(stArg)};
+    try{ html=buildAgreementHTML(pkgName); } finally { state=keep; }
+  } else {
+    html=buildAgreementHTML(pkgName||defaultSlotName());
+  }
+  const w=window.open('','_blank');
+  if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+  else {
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    a.download='SCFS-sponsorship-agreement.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  }
+}
+function emailAgreement(slot){
+  const r=mySlots[slot]; if(!r) return;
+  openAgreement(r.state, r.name);
+  const keep=state;
+  state={...BLANK_STATE(),...structuredClone(r.state)};
+  const total=compute().total;
+  state=keep;
+  const subj=encodeURIComponent('The paperwork for the fun stuff — “'+r.name+'” × Summer Camp for Songwriters');
+  const body=encodeURIComponent('Hi!\n\nOur Summer Camp for Songwriters sponsorship agreement for “'+r.name+'” is drafted — season total '+fmt(total)+'.\n\nThe draft just opened in a new tab: save it as a PDF (Print → Save as PDF), attach it here, and send it on.\n\nSee you at the lake,\n');
+  setTimeout(()=>{ location.href='mailto:?subject='+subj+'&body='+body; },500);
+}
+
 async function refreshRole(){
   let adm=false;
   if(session){ try{const {data}=await sb.rpc('is_admin'); adm=!!data}catch(e){} }
@@ -1775,7 +2019,7 @@ if(window.top!==window.self){
   /* emulate position:sticky against the host page's viewport (vTop = the
      y-coordinate, in our document space, of the visible area's top edge) */
   function trackStickies(vTop){
-    const aside=document.querySelector('aside.summary');
+    const aside=document.querySelector('.side-col');
     if(aside){
       if(getComputedStyle(aside).position==='sticky'){
         const wrap=document.querySelector('.wrap');
