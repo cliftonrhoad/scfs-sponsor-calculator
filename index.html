@@ -382,6 +382,9 @@ section.collapsed .caret{transform:rotate(-90deg)}
    a permanent clip container would break the sticky activities header */
 .sec-body{transition:max-height .3s ease}
 section.collapsed .sec-body{max-height:0;visibility:hidden;overflow:hidden}
+/* a locked section is read-only: its body is inert (set in renderLocks) and
+   visibly dimmed; the header stays live so it can be unlocked or collapsed */
+.sec-locked .sec-body{opacity:.55}
 section.collapsed{cursor:pointer;padding-bottom:6px}
 @media(prefers-reduced-motion:reduce){.sec-body{transition:none}}
 @media(prefers-reduced-motion:reduce){.caret{transition:none}}
@@ -1376,12 +1379,22 @@ document.querySelectorAll('.h2row[data-acc]').forEach(h=>{
 /* section locks (wired once; visual state via renderLocks) */
 const LOCK_OPEN='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 10V7a4 4 0 0 1 7.8-1.3"/><rect x="5" y="10" width="14" height="10" rx="2"/></svg>';
 const LOCK_CLOSED='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 10V7a4 4 0 0 1 8 0v3"/><rect x="5" y="10" width="14" height="10" rx="2"/></svg>';
+const SEC_OF={acts:'sec-activities',rights:'sec-rights',spots:'sec-spots',feedback:'sec-feedback',sch:'sec-extras'};
 function renderLocks(){
   document.querySelectorAll('.lock-btn[data-lock]').forEach(b=>{
     const on=!!(state.locks&&state.locks[b.dataset.lock]);
     b.classList.toggle('locked',on);
     b.setAttribute('aria-pressed',String(on));
     b.innerHTML=on?LOCK_CLOSED:LOCK_OPEN;
+  });
+  /* locked = actually read-only, not just a solver constraint */
+  Object.entries(SEC_OF).forEach(([k,id])=>{
+    const sec=document.getElementById(id);
+    if(!sec)return;
+    const on=!!(state.locks&&state.locks[k]);
+    sec.classList.toggle('sec-locked',on);
+    const body=sec.querySelector('.sec-body');
+    if(body)body.inert=on;
   });
   /* a locked section disables its own refresh until unlocked — no tooltip,
      no cursor theatrics, just the greyed icon */
