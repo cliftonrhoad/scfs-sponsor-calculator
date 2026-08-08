@@ -60,8 +60,9 @@ h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0;
 .seg button{margin:0 4px}
 .lede-indent{padding-left:8px}
 .seg button{font-family:var(--display);font-size:17px;text-transform:uppercase;letter-spacing:.03em;
-  background:transparent;color:var(--ink);border:1px solid var(--ink);border-radius:4px;
+  background:transparent;color:var(--ink);border:1px solid var(--ink-faint);border-radius:4px;
   padding:10px 6px;cursor:pointer;line-height:1.15}
+.seg button:not(.active):not(.seg-moot):hover{border-color:var(--ink)}
 .seg button .mult{display:block;font-family:var(--data);font-weight:600;font-size:10px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-top:3px}
 .seg button.active{background:var(--ink);color:var(--panel)}
@@ -439,7 +440,12 @@ html.embedded #bootVeil{background:transparent}
    height (no internal scrolling) and streams viewport positions in; the deal
    bar switches from viewport-fixed to absolute and tracks the real screen */
 html.autofit body{position:relative}
-html.autofit .deal-bar{position:absolute;left:0;right:0;bottom:auto}
+/* embed deal bar wears the section design language: floating card, quiet
+   1px outline, bright on hover */
+html.autofit .deal-bar{position:absolute;left:12px;right:12px;bottom:auto;
+  border:1px solid var(--ink-faint);border-radius:6px;padding:12px 16px 14px;
+  transition:border-color .12s}
+html.autofit .deal-bar:hover{border-color:var(--ink)}
 /* fixed-mode hiding slides the bar below the viewport; absolute-mode can't,
    so hide the not-shown bar outright */
 html.autofit .deal-bar:not(.show){display:none}
@@ -619,6 +625,7 @@ const SB_URL='https://ismqutlampadxctshoab.supabase.co';
 const SB_KEY='sb_publishable_trITdIQ2EPrH3vRtABw0uQ_VDm34ZH-';
 const sb=createClient(SB_URL,SB_KEY);
 let session=null, isAdmin=false, publishedConfig=null;
+let embedApplyView=null; /* set in autofit embed mode; drives sticky emulation */
 const showPrices=()=>isAdmin;
 /* The publish wrapper builds its own <head>, so the viewport meta in this file
    can land in <body> where some browsers ignore it — leaving phones on a 980px
@@ -1217,6 +1224,12 @@ function update(full){
    whole card opens); expanded sections only toggle via their header. */
 /* the activities header row only wears its floating pill while actually stuck */
 function updateActStuck(){
+  /* autofit embeds have no internal scrolling — sticky is emulated off the
+     host page's viewport messages instead */
+  if(document.documentElement.classList.contains('autofit')){
+    if(embedApplyView)embedApplyView();
+    return;
+  }
   const tbl=document.getElementById('actTable');
   const row=tbl&&tbl.querySelector('.act-head');
   if(!row)return;
@@ -1585,6 +1598,46 @@ if(window.top!==window.self){
     lastH=0; sendH();
     if(++hTries>7||document.documentElement.classList.contains('autofit'))clearInterval(hTimer);
   },1300);
+  let lastView=null, actOff=0, sumOff=0;
+  const clampN=(v,a,b)=>Math.max(a,Math.min(v,b));
+  /* emulate position:sticky against the host page's viewport (vTop = the
+     y-coordinate, in our document space, of the visible area's top edge) */
+  function trackStickies(vTop){
+    const aside=document.querySelector('aside.summary');
+    if(aside){
+      if(getComputedStyle(aside).position==='sticky'){
+        const wrap=document.querySelector('.wrap');
+        const wr=wrap.getBoundingClientRect();
+        const ar=aside.getBoundingClientRect();
+        const natTop=(ar.top-sumOff)-wr.top;
+        const travel=(wrap.clientHeight-120)-(natTop+ar.height);
+        sumOff=clampN((vTop+16)-(wr.top+natTop),0,Math.max(0,travel));
+        aside.style.transform=sumOff?`translateY(${sumOff}px)`:'';
+      } else { sumOff=0; aside.style.transform=''; }
+    }
+    const tbl=document.getElementById('actTable');
+    const row=tbl&&tbl.querySelector('.act-head');
+    if(row){
+      const open=!document.getElementById('sec-activities').classList.contains('collapsed');
+      const tr=tbl.getBoundingClientRect();
+      const stuck=open && (tr.top-vTop)<8 && (tr.bottom-vTop)>120;
+      row.classList.toggle('stuck',stuck);
+      actOff=stuck?clampN((vTop+8)-tr.top,0,Math.max(0,tr.height-160)):0;
+      row.querySelectorAll('th:not(.g-cell)').forEach(th=>{
+        th.style.transform=actOff?`translateY(${actOff}px)`:'';
+      });
+    }
+  }
+  function applyView(){
+    if(!lastView)return;
+    const bar=document.getElementById('dealBar');
+    if(bar){
+      const H=document.documentElement.scrollHeight, bh=bar.offsetHeight||0;
+      bar.style.top=Math.max(0,Math.min(lastView.top+lastView.vh-bh,H-bh))+'px';
+    }
+    trackStickies(lastView.top);
+  }
+  embedApplyView=applyView;
   addEventListener('message',e=>{
     const d=e.data;
     if(!d||d.scfs!=='view'||typeof d.top!=='number'||typeof d.vh!=='number')return;
@@ -1592,10 +1645,8 @@ if(window.top!==window.self){
       document.documentElement.classList.add('autofit');
       lastH=0; sendH();
     }
-    const bar=document.getElementById('dealBar');
-    if(!bar)return;
-    const H=document.documentElement.scrollHeight, bh=bar.offsetHeight||0;
-    bar.style.top=Math.max(0,Math.min(d.top+d.vh-bh,H-bh))+'px';
+    lastView={top:d.top,vh:d.vh};
+    applyView();
   });
 }
 </script>
