@@ -364,7 +364,8 @@ section.collapsed:hover .caret{color:var(--ink)}
 .patron-perks li::marker{color:var(--ink)}
 .sub-chip{font-family:var(--data);font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink);
   border:1px solid var(--ink-faint);border-radius:3px;padding:3px 8px;white-space:nowrap;flex:none}
-.caret{flex:none;color:var(--ink-dim);font-size:19px;line-height:1;padding:4px 2px 4px 8px;
+.caret{flex:none;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--ink-dim);font-size:19px;line-height:1;padding:4px 2px 4px 8px;
   transition:transform .15s}
 section.collapsed .caret{transform:rotate(-90deg)}
 /* overflow:hidden only while collapsed or animating (inline via JS) —
@@ -524,7 +525,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   <div class="cat-row" id="catRow" role="group" aria-label="Sponsor category and budget"></div>
 
   <section id="sec-activities" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Activities Footage</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="acts" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="acts" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret">▼</span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Activities Footage</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="acts" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="acts" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede">Quantities are caps from the menu. These line items get multiplied by the usage-rights option below.</p>
       <div class="act-scroll"><table class="act-table" id="actTable"></table></div>
@@ -532,7 +533,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-rights" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Usage Rights</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="rights" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="rights" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret">▼</span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Usage Rights</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="rights" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="rights" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede lede-indent">Each row adds its own weight to the footage multiplier. The A/B/C buttons are presets that set all rows at once — click any cell to override a single row. Each option includes everything to its left.</p>
       <div class="seg" id="rightsSeg" role="radiogroup" aria-label="Usage rights preset"></div>
@@ -543,7 +544,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-spots" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Scripted Spots</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="spots" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="spots" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret">▼</span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Scripted Spots</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="spots" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="spots" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede">Presenting sponsorship of a Summer Camp mini-doc. Flat price, not affected by the rights multiplier.</p>
       <div class="row-scroll"><div id="spotRows" class="row-track"></div></div>
@@ -551,7 +552,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-extras" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Patron Scholarship Packages</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="sch" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="sch" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret">▼</span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Patron Scholarship Packages</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="sch" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="sch" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <div class="row-scroll"><div id="extraRows" class="row-track"></div></div>
       <div class="perk-cols">
@@ -578,7 +579,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-feedback" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Captive Audience Feedback</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="feedback" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="feedback" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret">▼</span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Captive Audience Feedback</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="feedback" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="feedback" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede">Live activations with the writers. Priced flat — these ship with Mixed-equivalent usage rights baked in, so the footage multiplier doesn't touch them.</p>
       <div class="row-scroll"><div id="feedbackRows" class="row-track"></div></div>
