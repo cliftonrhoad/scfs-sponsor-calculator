@@ -487,17 +487,35 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 .auth-input:focus{outline:none;border-color:var(--ink)}
 .auth-err{font-size:11.5px;color:#ffb4a0;margin-top:4px}
 .slot-title{font-family:var(--display);font-size:16px;text-transform:uppercase;letter-spacing:.03em}
-.slot-sub{font-family:var(--hand);font-size:15px;color:var(--ink);margin:2px 0 4px}
-.slot-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px solid var(--ink-faint);font-size:12.5px}
-.slot-row:first-of-type{border-top:none}
+.slot-sub{font-family:var(--hand);font-size:15px;color:var(--ink);margin:2px 0 6px}
+.slot-row{display:flex;align-items:stretch;gap:6px;margin:6px 0}
+.slot-save{flex:none;width:44px;display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0}
+.slot-save:hover{color:var(--ink)}
+.slot-card{flex:1;min-width:0;font-family:var(--display);font-size:15px;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--ink);background:transparent;border:1px dashed var(--ink-faint);
+  border-radius:6px;padding:12px 8px;cursor:pointer;line-height:1.1;text-align:center}
+.slot-card:hover{border-color:var(--ink)}
+.slot-card.empty{color:var(--ink-faint);cursor:default}
+.slot-card.empty:hover{border-color:var(--ink-faint)}
+.slot-list-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px solid var(--ink-faint)}
 .slot-name{flex:1;min-width:0;text-align:left;background:none;border:none;color:var(--white-dim);
   cursor:pointer;font-size:12.5px;font-family:var(--data);padding:3px 0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
 .slot-name:hover{color:var(--ink)}
-.slot-name.empty{color:var(--ink);font-family:var(--hand);font-size:15px}
-.slot-ico{flex:none;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;
-  background:none;border:1px solid var(--ink-faint);border-radius:3px;color:var(--ink-dim);cursor:pointer;padding:0}
-.slot-ico:hover{border-color:var(--ink);color:var(--ink)}
+/* ---------- brand modal (replaces window.prompt/confirm) ---------- */
+.modal-veil{position:fixed;inset:0;z-index:60;background:rgba(15,43,22,.78);display:none;
+  align-items:center;justify-content:center;padding:20px}
+.modal-veil.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--ink);border-radius:6px;width:min(420px,100%);
+  padding:20px 20px 16px}
+.modal h3{font-family:var(--display);font-weight:400;font-size:22px;text-transform:uppercase;
+  letter-spacing:.02em;margin:0}
+.modal .m-sub{font-family:var(--hand);font-size:17px;color:var(--ink);margin:2px 0 10px}
+.modal p{font-size:13px;color:var(--white-dim);margin:0 0 6px;line-height:1.55}
+.modal p b{color:var(--ink);font-weight:600}
+.modal .m-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.modal .m-btns .btn{width:auto;margin:0;padding:8px 16px}
 @media(max-width:480px){
   body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:minmax(0,1fr) auto}
 }
@@ -616,6 +634,8 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 
 <div id="printSheet" aria-hidden="true"></div>
 
+<div class="modal-veil" id="modalVeil"><div class="modal" id="modalBox"></div></div>
+
 <div class="drawer-veil" id="veil"></div>
 <div class="drawer" id="drawer" role="dialog" aria-label="Rate card">
   <div class="h2row"><h2>Rate Card</h2><button class="btn btn-quiet" id="closeDrawer">Close</button></div>
@@ -641,6 +661,7 @@ const SB_KEY='sb_publishable_trITdIQ2EPrH3vRtABw0uQ_VDm34ZH-';
 const sb=createClient(SB_URL,SB_KEY);
 let session=null, isAdmin=false, publishedConfig=null;
 let embedApplyView=null; /* set in autofit embed mode; drives sticky emulation */
+let embedViewTop=null, embedViewVH=null; /* latest host viewport, for modal centering */
 const showPrices=()=>isAdmin;
 /* The publish wrapper builds its own <head>, so the viewport meta in this file
    can land in <body> where some browsers ignore it — leaving phones on a 980px
@@ -1520,8 +1541,42 @@ function renderAuth(){
   }
 }
 
-const SAVE_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>';
-const TRASH_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>';
+const SAVE_LG='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>';
+
+/* ---------- brand modal machinery ---------- */
+function positionModal(){
+  const veil=$('modalVeil'), box=$('modalBox');
+  if(!veil||!veil.classList.contains('open'))return;
+  if(document.documentElement.classList.contains('autofit') && embedViewTop!=null){
+    veil.style.alignItems='flex-start';
+    const h=box.offsetHeight||240;
+    box.style.marginTop=Math.max(16, embedViewTop+(embedViewVH-h)/2)+'px';
+  } else { veil.style.alignItems='center'; box.style.marginTop='0'; }
+}
+function openModal(html){ $('modalBox').innerHTML=html; $('modalVeil').classList.add('open'); positionModal(); }
+function closeModal(){ $('modalVeil').classList.remove('open'); $('modalVeil').onclick=null; }
+function modalPrompt(o){ return new Promise(res=>{
+  openModal(`<h3>${o.title}</h3>${o.sub?`<div class="m-sub">${o.sub}</div>`:''}${o.body||''}
+    <input class="auth-input" id="mInput" type="text" maxlength="60" value="${esc(o.value||'')}" aria-label="${esc(o.title)}">
+    <div class="m-btns"><button class="btn btn-quiet" id="mCancel">Cancel</button>
+    <button class="btn primary" id="mOk">${o.confirm||'Save'}</button></div>`);
+  const inp=$('mInput');
+  const done=v=>{closeModal();res(v)};
+  inp.focus(); inp.select();
+  $('mOk').onclick=()=>done(inp.value.trim()||null);
+  $('mCancel').onclick=()=>done(null);
+  inp.onkeydown=e=>{if(e.key==='Enter')$('mOk').click(); if(e.key==='Escape')done(null)};
+  $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))done(null)};
+});}
+function modalConfirm(o){ return new Promise(res=>{
+  openModal(`<h3>${o.title}</h3>${o.sub?`<div class="m-sub">${o.sub}</div>`:''}${o.body||''}
+    <div class="m-btns">${o.cancel===null?'':`<button class="btn btn-quiet" id="mCancel">${o.cancel||'Cancel'}</button>`}
+    <button class="btn primary" id="mOk">${o.confirm||'Confirm'}</button></div>`);
+  const done=v=>{closeModal();res(v)};
+  $('mOk').onclick=()=>done(true);
+  const c=$('mCancel'); if(c)c.onclick=()=>done(false);
+  $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))done(false)};
+});}
 
 function defaultSlotName(){
   const c=compute();
@@ -1529,12 +1584,14 @@ function defaultSlotName(){
   const t=activeTarget();
   return catName+' — '+(t?t.name:fmt(c.total));
 }
-function applyLoadedState(s){
-  state={...BLANK_STATE(),...structuredClone(s)};
+const LOCK_ALL=()=>({acts:true,rights:true,spots:true,feedback:true,sch:true});
+function applyLoadedState(st){
+  state={...BLANK_STATE(),...structuredClone(st)};
   if(!Array.isArray(state.rightsRows)||state.rightsRows.length!==RIGHTS_MATRIX.length)
     state.rightsRows=RIGHTS_MATRIX.map(()=>0);
-  if(!state.locks)state.locks={acts:false,rights:false,spots:false,feedback:false,sch:false};
   if(!state.actLocks)state.actLocks={Music:false,Meals:false,Camp:false};
+  /* a loaded package arrives frozen — unlock a section to change it */
+  state.locks=LOCK_ALL();
   update(true);
 }
 async function loadSlots(){
@@ -1551,40 +1608,50 @@ async function loadSlots(){
 function renderSlots(){
   const box=$('slotBox'); if(!box) return;
   if(!session){box.innerHTML='';return}
-  let h='<div class="slot-title">Saved Proposals</div><div class="slot-sub">six slots — tap a name to load it</div>';
+  let h='<div class="slot-title">Saved Packages</div><div class="slot-sub">the disk saves your current board — tap a package to load it</div>';
   for(let i=1;i<=6;i++){
     const r=mySlots[i];
-    h+='<div class="slot-row">'+(r
-      ?`<button class="slot-name" data-load="${i}" title="Load this proposal">${esc(r.name)}</button>
-        <button class="slot-ico" data-save="${i}" title="Overwrite with the current board">${SAVE_SVG}</button>
-        <button class="slot-ico" data-del="${i}" title="Delete">${TRASH_SVG}</button>`
-      :`<button class="slot-name empty" data-save="${i}">save current board to slot ${i}</button>`)+'</div>';
+    h+=`<div class="slot-row">
+      <button class="slot-save" data-save="${i}" title="${r?`Save over \u201c${esc(r.name)}\u201d`:'Save the current board here'}" aria-label="Save current board to package ${i}">${SAVE_LG}</button>
+      <button class="slot-card ${r?'':'empty'}" data-load="${i}" ${r?`title="Load \u201c${esc(r.name)}\u201d"`:'disabled'}>Saved Package ${i}</button>
+    </div>`;
   }
   if(adminConfigs&&adminConfigs.length){
-    h+='<div class="slot-title" style="margin-top:12px">All Saved Proposals</div><div class="slot-sub">every account\u2019s saves — admin eyes only</div>';
+    h+='<div class="slot-title" style="margin-top:12px">All Saved Packages</div><div class="slot-sub">every account\u2019s saves — admin eyes only</div>';
     adminConfigs.forEach((r,i)=>{
-      h+=`<div class="slot-row"><button class="slot-name" data-adm="${i}" title="Load">${esc(r.email)} — ${esc(r.name)}</button></div>`;
+      h+=`<div class="slot-list-row"><button class="slot-name" data-adm="${i}" title="Load">${esc(r.email)} — ${esc(r.name)}</button></div>`;
     });
   }
   box.innerHTML=h;
-  box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>applyLoadedState(mySlots[+b.dataset.load].state));
-  box.querySelectorAll('[data-save]').forEach(b=>b.onclick=async()=>{
-    const slot=+b.dataset.save, existing=mySlots[slot];
-    const name=(window.prompt('Name this proposal:',existing?existing.name:defaultSlotName())||'').trim();
-    if(!name)return;
-    const {error}=await sb.from('saved_configs')
-      .upsert({user_id:session.user.id,slot,name,state,updated_at:new Date().toISOString()});
-    if(error) window.alert('Save failed: '+error.message); else loadSlots();
-  });
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
-    const slot=+b.dataset.del;
-    if(!window.confirm('Delete “'+mySlots[slot].name+'”?'))return;
-    await sb.from('saved_configs').delete().eq('user_id',session.user.id).eq('slot',slot);
-    loadSlots();
-  });
+  box.querySelectorAll('[data-load]:not([disabled])').forEach(b=>b.onclick=()=>applyLoadedState(mySlots[+b.dataset.load].state));
+  box.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveToSlot(+b.dataset.save));
   box.querySelectorAll('[data-adm]').forEach(b=>b.onclick=()=>applyLoadedState(adminConfigs[+b.dataset.adm].state));
 }
-
+async function saveToSlot(slot){
+  const existing=mySlots[slot];
+  if(existing){
+    const ok=await modalConfirm({
+      title:`Saved Package ${slot} is taken`,
+      sub:'overwriting is forever',
+      body:`<p><b>${esc(existing.name)}</b> lives in this slot. Saving here writes over it for good — no undo, no archive, no fishing it back out of the lake.</p>`,
+      confirm:'Overwrite it', cancel:'Keep it'});
+    if(!ok) return;
+  }
+  const name=await modalPrompt({
+    title:`Save to Package ${slot}`,
+    sub:'name it something you\u2019ll recognize later',
+    value:existing?existing.name:defaultSlotName(),
+    confirm:'Save package'});
+  if(!name) return;
+  /* a saved package is a finished thought: lock every section so edits
+     require deliberately unlocking */
+  state.locks=LOCK_ALL();
+  persist(); update(true);
+  const {error}=await sb.from('saved_configs')
+    .upsert({user_id:session.user.id,slot,name,state,updated_at:new Date().toISOString()});
+  if(error) modalConfirm({title:'Save didn\u2019t stick',body:`<p>${esc(error.message)}</p>`,confirm:'Close',cancel:null});
+  else loadSlots();
+}
 async function refreshRole(){
   let adm=false;
   if(session){ try{const {data}=await sb.rpc('is_admin'); adm=!!data}catch(e){} }
@@ -1674,6 +1741,7 @@ if(window.top!==window.self){
       bar.style.top=Math.max(0,Math.min(lastView.top+lastView.vh-bh,H-bh))+'px';
     }
     trackStickies(lastView.top);
+    positionModal();
   }
   embedApplyView=applyView;
   addEventListener('message',e=>{
@@ -1684,6 +1752,7 @@ if(window.top!==window.self){
       lastH=0; sendH();
     }
     lastView={top:d.top,vh:d.vh};
+    embedViewTop=d.top; embedViewVH=d.vh;
     applyView();
   });
 }
