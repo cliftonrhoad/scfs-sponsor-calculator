@@ -364,7 +364,8 @@ section.collapsed:hover .caret{color:var(--ink)}
 .patron-perks li::marker{color:var(--ink)}
 .sub-chip{font-family:var(--data);font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink);
   border:1px solid var(--ink-faint);border-radius:3px;padding:3px 8px;white-space:nowrap;flex:none}
-.caret{flex:none;color:var(--ink-dim);font-size:11px;transition:transform .15s}
+.caret{flex:none;color:var(--ink-dim);font-size:19px;line-height:1;padding:4px 2px 4px 8px;
+  transition:transform .15s}
 section.collapsed .caret{transform:rotate(-90deg)}
 /* overflow:hidden only while collapsed or animating (inline via JS) —
    a permanent clip container would break the sticky activities header */
@@ -423,6 +424,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .h2row[data-acc]{grid-template-columns:minmax(0,1fr) auto auto auto auto;gap:7px}
   .callout{font-size:12px;padding:10px 12px}
   .lock-note{font-size:12px}
+  .caret{font-size:23px}
   /* only the usage-rights matrix keeps a side-scroll; every other section fits */
   .rights-table{min-width:640px}
   .toggle-row,.step-row{grid-template-columns:minmax(0,1fr) auto auto;gap:8px}
@@ -474,7 +476,6 @@ body:not(.admin) .w-chip,body:not(.admin) .rider-price{display:none}
 body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:minmax(0,1fr) 96px}
 .auth-box,.slot-box{border-top:1px solid var(--ink-faint);margin-top:12px;padding-top:12px}
 .slot-box:empty,.auth-box:empty{display:none}
-.auth-note{font-family:var(--hand);font-size:16px;color:var(--ink);margin:6px 0 0;line-height:1.2}
 .auth-line{font-size:12px;color:var(--white-dim);display:flex;justify-content:space-between;
   gap:8px;align-items:center;flex-wrap:wrap}
 .auth-line b{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
@@ -1452,7 +1453,7 @@ function renderAuth(){
   }
   if(authMode==='idle'){
     box.innerHTML=`<button class="btn wide" id="signInBtn">Sign in / Create account</button>
-      <p class="auth-note">save + reload proposal builds — entering your email creates your account automatically</p>`;
+    `;
     $('signInBtn').onclick=()=>{authMode='email';authErr='';renderAuth()};
   } else if(authMode==='email'){
     box.innerHTML=`<div class="auth-line">Your email — new emails create an account</div>
