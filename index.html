@@ -314,7 +314,7 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .hero-card .hc-price{white-space:nowrap}
 @container (max-width:172px){.hc-season{display:none}}
 .custom-card input{width:72px;background:transparent;border:none;border-bottom:1px solid var(--ink-faint);
-  color:var(--white);font-family:var(--data);font-size:14px;font-variant-numeric:tabular-nums;padding:0 2px 1px}
+  color:var(--ink);font-family:var(--hand);font-size:20px;padding:0 2px 1px}
 .custom-card input:focus{outline:none;border-bottom-color:var(--ink)}
 .custom-card input::placeholder{color:var(--ink);font-family:var(--hand);font-size:20px}
 .custom-card:hover input::placeholder{color:transparent}
@@ -1106,7 +1106,7 @@ function renderHero(){
     `<div class="hero-card custom-card ${cb?'active':''}" id="customCard" role="group" aria-label="Custom budget">
       <span class="hc-eyebrow">Patron</span>
       <span class="hc-name">Custom</span>
-      <span class="hc-price"><span class="bf-dollar">&gt;$</span><input id="budgetInput" type="number" inputmode="numeric" min="0" placeholder="3,000" value="${cb||''}" aria-label="Custom budget amount, starts at $3,000" title="Custom budgets start at $3,000 — one scholarship"><span class="hc-season"> / season</span></span>
+      <span class="hc-price"><span class="bf-dollar">$</span><input id="budgetInput" type="number" inputmode="numeric" min="0" placeholder="3,000+" value="${cb||''}" aria-label="Custom budget amount, starts at $3,000" title="Custom budgets start at $3,000 — one scholarship"><span class="hc-season"> / season</span></span>
     </div>`
     + config.tiers.map((tier,i)=>
     `<button class="hero-card ${cb===null&&t===i?'active':''}" data-i="${i}" aria-pressed="${cb===null&&t===i}">
