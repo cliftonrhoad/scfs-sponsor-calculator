@@ -1575,6 +1575,13 @@ if(window.top!==window.self){
   };
   new ResizeObserver(sendH).observe(document.documentElement);
   addEventListener('load',sendH);
+  /* re-broadcast for the first ~10s: survives host scripts that attach their
+     listener late (Ajax page loaders, deferred code blocks) */
+  let hTries=0;
+  const hTimer=setInterval(()=>{
+    lastH=0; sendH();
+    if(++hTries>7||document.documentElement.classList.contains('autofit'))clearInterval(hTimer);
+  },1300);
   addEventListener('message',e=>{
     const d=e.data;
     if(!d||d.scfs!=='view'||typeof d.top!=='number'||typeof d.vh!=='number')return;
