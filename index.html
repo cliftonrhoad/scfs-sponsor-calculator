@@ -186,10 +186,6 @@ h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0;
 .side-col{position:sticky;top:16px;display:flex;flex-direction:column;gap:18px}
 .summary{background:var(--panel);border:1px dashed var(--ink-faint);border-radius:6px;padding:18px}
 .saved-panel .auth-box{border-top:none;margin-top:0;padding-top:0}
-.total-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
-.icon-btn{flex:none;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
-  background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0;margin-bottom:12px}
-.icon-btn:hover{color:var(--ink)}
 .summary h2{font-size:22px;margin-bottom:10px}
 .sumline{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:13px;
   color:var(--white-dim);font-variant-numeric:tabular-nums}
@@ -643,11 +639,10 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   <div id="sumLines"></div>
   <hr class="sum-divider">
   <span class="total-label">season total</span>
-  <div class="total-row">
-    <div class="total" id="totalOut">$0</div>
-    <button class="icon-btn" id="agreementBtn" title="Draft the sponsorship agreement" aria-label="Draft the sponsorship agreement"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></button>
-  </div>
-  <button class="btn wide btn-quiet" id="printBtn">Print One-Pager</button>
+  <div class="total" id="totalOut">$0</div>
+  <button class="btn wide primary" id="saveBtn">Save the package</button>
+  <button class="btn wide btn-quiet" id="printBtn">Print the one-pager</button>
+  <button class="btn wide" id="agreementBtn">View the Agreement</button>
   <button class="btn wide primary" id="rateBtn">Edit Rate Card</button>
 </div>
 <div class="summary saved-panel">
@@ -1490,6 +1485,7 @@ function printOnePager(){
 }
 $('printBtn').onclick=printOnePager;
 $('agreementBtn').onclick=()=>openAgreement();
+$('saveBtn').onclick=()=>saveSmart();
 $('barClear').onclick=()=>{state=BLANK_STATE();update(true)};
 $('rateBtn').onclick=()=>{if(!isAdmin)return;$('drawer').classList.add('open');$('veil').classList.add('open')};
 $('closeDrawer').onclick=$('veil').onclick=()=>{$('drawer').classList.remove('open');$('veil').classList.remove('open')};
@@ -1580,13 +1576,25 @@ const TRASH_LG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stro
 
 /* ---------- brand modal machinery ---------- */
 function positionModal(){
+  /* anchor modals near the TOP of the visible area, not its center: mobile
+     keyboards eat the bottom half of the screen and iOS doesn't reliably
+     report it, so top-anchored + internally scrollable is the safe shape */
   const veil=$('modalVeil'), box=$('modalBox');
   if(!veil||!veil.classList.contains('open'))return;
+  veil.style.alignItems='flex-start';
+  let vTop=0, vh=window.innerHeight;
   if(document.documentElement.classList.contains('autofit') && embedViewTop!=null){
-    veil.style.alignItems='flex-start';
-    const h=box.offsetHeight||240;
-    box.style.marginTop=Math.max(16, embedViewTop+(embedViewVH-h)/2)+'px';
-  } else { veil.style.alignItems='center'; box.style.marginTop='0'; }
+    vTop=embedViewTop; vh=embedViewVH;
+  } else if(window.visualViewport){
+    vTop=window.visualViewport.offsetTop; vh=window.visualViewport.height;
+  }
+  box.style.maxHeight=Math.max(220, vh-110)+'px';
+  box.style.overflowY='auto';
+  box.style.marginTop=Math.max(16, vTop + Math.min(80, Math.round(vh*0.10)))+'px';
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',positionModal);
+  window.visualViewport.addEventListener('scroll',positionModal);
 }
 function openModal(html){ $('modalBox').innerHTML=html; $('modalVeil').classList.add('open'); positionModal(); }
 function closeModal(){ $('modalVeil').classList.remove('open'); $('modalVeil').onclick=null; }
@@ -1696,6 +1704,87 @@ async function renameSlot(slot){
       .eq('user_id',session.user.id).eq('slot',slot);
     if(!error){ r.name=res.value; renderSlots() }
   }
+}
+function modalSignIn(){ return new Promise(res=>{
+  let email='';
+  const bail=()=>{closeModal();res(false)};
+  const step1=()=>{ openModal(`<h3>Sign in to save</h3><div class="m-sub">entering your email creates your account automatically</div>
+    <input class="auth-input" id="mEmail" type="email" autocomplete="email" placeholder="you@brand.com" value="${esc(email)}">
+    <div class="auth-err" id="mErr" style="display:none"></div>
+    <div class="m-btns"><button class="btn btn-quiet" id="mCancel">Cancel</button>
+    <button class="btn primary" id="mOk">Email me a code</button></div>`);
+    const inp=$('mEmail'); inp.focus();
+    $('mCancel').onclick=bail;
+    $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))bail()};
+    inp.onkeydown=e=>{if(e.key==='Enter')$('mOk').click(); if(e.key==='Escape')bail()};
+    $('mOk').onclick=async()=>{
+      email=inp.value.trim();
+      const err=$('mErr');
+      if(!/^\S+@\S+\.\S+$/.test(email)){err.textContent='That email doesn\u2019t look right.';err.style.display='block';return}
+      $('mOk').disabled=true;$('mOk').textContent='Sending\u2026';
+      const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+      if(error){err.textContent=error.message;err.style.display='block';$('mOk').disabled=false;$('mOk').textContent='Email me a code';return}
+      step2();
+    };
+  };
+  const step2=()=>{ openModal(`<h3>Enter your code</h3><div class="m-sub">we emailed a 6-digit code to ${esc(email)}</div>
+    <input class="auth-input" id="mCode" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+    <div class="auth-err" id="mErr" style="display:none"></div>
+    <div class="m-btns"><button class="btn btn-quiet" id="mBack">Different email</button>
+    <button class="btn primary" id="mOk">Verify</button></div>`);
+    const inp=$('mCode'); inp.focus();
+    $('mBack').onclick=step1;
+    $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))bail()};
+    inp.onkeydown=e=>{if(e.key==='Enter')$('mOk').click(); if(e.key==='Escape')bail()};
+    $('mOk').onclick=async()=>{
+      const code=inp.value.trim();
+      const err=$('mErr');
+      if(!/^\d{6}$/.test(code)){err.textContent='Enter the 6-digit code from the email.';err.style.display='block';return}
+      $('mOk').disabled=true;$('mOk').textContent='Checking\u2026';
+      const {error}=await sb.auth.verifyOtp({email,token:code,type:'email'});
+      if(error){err.textContent=error.message;err.style.display='block';$('mOk').disabled=false;$('mOk').textContent='Verify';return}
+      await refreshRole(); await loadSlots();
+      closeModal(); res(true);
+    };
+  };
+  step1();
+});}
+function modalPickSlot(){ return new Promise(res=>{
+  let btns='';
+  for(let i=1;i<=6;i++) btns+=`<button class="btn wide btn-quiet" data-pick="${i}" style="margin-top:6px;text-align:left">${i}. ${esc(mySlots[i].name)}</button>`;
+  openModal(`<h3>All six slots are full</h3><div class="m-sub">pick a package to replace — you\u2019ll get a warning before anything is lost</div>
+    ${btns}
+    <div class="m-btns"><button class="btn btn-quiet" id="mCancel">Cancel</button></div>`);
+  const bail=()=>{closeModal();res(null)};
+  $('mCancel').onclick=bail;
+  $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))bail()};
+  $('modalBox').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{closeModal();res(+b.dataset.pick)});
+});}
+async function saveSmart(){
+  if(!session){
+    const ok=await modalSignIn();
+    if(!ok) return;
+  }
+  let slot=null;
+  for(let i=1;i<=6;i++){ if(!mySlots[i]){slot=i;break} }
+  if(slot==null){
+    slot=await modalPickSlot();
+    if(slot==null) return;
+  }
+  saveToSlot(slot);
+}
+async function deleteSlot(slot){
+  const r=mySlots[slot]; if(!r) return;
+  const ok=await modalConfirm({
+    title:`Clear Saved Package ${slot}?`,
+    sub:'this one\u2019s forever too',
+    body:`<p><b>${esc(r.name)}</b> goes back to the lake — the slot opens up and that build is gone for good.</p>`,
+    confirm:'Clear the slot', cancel:'Keep it'});
+  if(!ok) return;
+  const {error}=await sb.from('saved_configs').delete()
+    .eq('user_id',session.user.id).eq('slot',slot);
+  if(error) modalConfirm({title:'Couldn\u2019t clear it',body:`<p>${esc(error.message)}</p>`,confirm:'Close',cancel:null});
+  else loadSlots();
 }
 async function saveToSlot(slot){
   const existing=mySlots[slot];
