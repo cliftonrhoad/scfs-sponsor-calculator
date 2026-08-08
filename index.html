@@ -199,10 +199,6 @@ h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0;
 .total-label{font-family:var(--hand);font-size:20px;color:var(--ink-dim)}
 .total{font-family:var(--display);font-size:44px;line-height:1;margin:2px 0 10px;
   font-variant-numeric:tabular-nums}
-.tier-badge{border:1px dashed var(--ink);border-radius:4px;padding:8px 10px;font-size:12.5px;margin-bottom:12px}
-.tier-badge .fit{font-family:var(--display);font-size:16px;text-transform:uppercase;display:block}
-.tier-bar{height:6px;background:var(--ground);border-radius:3px;margin-top:6px;overflow:hidden}
-.tier-bar i{display:block;height:100%;background:var(--ink)}
 .preset-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
 .btn{font-family:var(--display);font-size:14px;text-transform:uppercase;letter-spacing:.04em;
   background:transparent;border:1px solid var(--ink);color:var(--ink);border-radius:4px;
@@ -288,14 +284,18 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
   box-shadow:0 -4px 24px rgba(0,0,0,.35)}
 .bar-cat-pop.open{display:flex}
 
-/* ---------- footage column tooltips ---------- */
-.act-table th .th-lbl{text-decoration:underline dotted 1px;text-underline-offset:3px;text-decoration-color:var(--ink-faint)}
-.act-table th[data-tip]{cursor:help}
-.act-table th[data-tip]:hover::after{
+/* ---------- explainer tooltips: hover on desktop, tap on touch ---------- */
+.act-table th .th-lbl,.tip-hint{text-decoration:underline dotted 1px;text-underline-offset:3px;
+  text-decoration-color:var(--ink-faint)}
+[data-tip]{cursor:help}
+.rights-table th[data-tip],.toggle-name[data-tip]{position:relative}
+[data-tip]:hover::after,[data-tip].tip-open::after{
   content:attr(data-tip);position:absolute;left:50%;top:calc(100% + 2px);transform:translateX(-50%);
-  width:180px;background:var(--ground);border:1px solid var(--ink);border-radius:4px;
+  width:190px;background:var(--ground);border:1px solid var(--ink);border-radius:4px;
   padding:7px 9px;font-family:var(--data);font-size:11px;font-weight:400;letter-spacing:0;
   text-transform:none;color:var(--white-dim);line-height:1.45;z-index:9;white-space:normal;text-align:left}
+.rights-table th[data-tip]:hover::after,.rights-table th[data-tip].tip-open::after{left:0;transform:none}
+.row-scroll:has(#spotRows){overflow:visible}
 
 /* ---------- deal bar: intermediate widths ----------
    one rule everywhere: the reset button and tier chips share a row at every
@@ -328,9 +328,9 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .hero-card .hc-price{white-space:nowrap}
 @container (max-width:172px){.hc-season{display:none}}
 .custom-card input{width:72px;background:transparent;border:none;border-bottom:1px solid var(--ink-faint);
-  color:var(--ink);font-family:var(--hand);font-size:20px;padding:0 2px 1px}
+  color:var(--ink);font-family:var(--hand);font-size:22px;padding:0 2px 1px}
 .custom-card input:focus{outline:none;border-bottom-color:var(--ink)}
-.custom-card input::placeholder{color:var(--ink);font-family:var(--hand);font-size:20px}
+.custom-card input::placeholder{color:var(--ink);font-family:var(--hand);font-size:22px}
 .custom-card:hover input::placeholder{color:transparent}
 .custom-card.active input{color:var(--panel);border-bottom-color:var(--panel)}
 .custom-card.active .bf-dollar{color:rgba(15,43,22,.8)}
@@ -415,7 +415,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .chip span{font-size:12px}
   .chip-load{font-size:14px}
   .bar-total{font-size:22px}
-  .bar-headroom{font-size:11px;max-width:150px}
+  .bar-headroom{display:none}
   section{padding:14px 14px 16px}
   /* title left, hand-note right, one line */
   .h2row{flex-wrap:nowrap;align-items:baseline}
@@ -431,7 +431,8 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .tier-hero-note{font-size:19px}
   /* four tier cards stay on one row; the "/ season" suffix drops */
   .hc-season{display:none}
-  .custom-card input{width:52px}
+  .custom-card input{width:52px;font-size:14px}
+  .custom-card input::placeholder{font-size:14px}
   .cat-chip .cat-txt{display:none}
   .cat-chip{padding:7px 10px}
   .excl-label{font-size:14px}
@@ -565,7 +566,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 </header>
 
 <main>
-  <div class="callout">All menu items in each package are <i>NIL cleared</i> and <i>AI-free</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
+  <div class="callout">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
 
   <p class="tier-hero-note">start here — pick a package, then customize it</p>
   <div class="tier-hero" id="tierHero"></div>
@@ -646,7 +647,6 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
     <div class="total" id="totalOut">$0</div>
     <button class="icon-btn" id="agreementBtn" title="Draft the sponsorship agreement" aria-label="Draft the sponsorship agreement"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></button>
   </div>
-  <div class="tier-badge" id="tierBadge"></div>
   <button class="btn wide btn-quiet" id="printBtn">Print One-Pager</button>
   <button class="btn wide primary" id="rateBtn">Edit Rate Card</button>
 </div>
@@ -734,6 +734,15 @@ const RIGHTS_MATRIX = [
 ];
 const DUR=1; /* duration row drives the re-license (renewal) boilerplate */
 const RIGHT_NAMES=['Limited','Mixed','Maxed Out'];
+const RIGHTS_TIPS=[
+  'Whether we may license the same footage to other brands — from non-exclusive up to yours alone for the term.',
+  'How long your license runs, counted from delivery.',
+  'Whether paid spend can go behind the footage — organic only, paid digital + whitelisting, or broadcast + out-of-home.',
+  'The placements allowed: digital only, plus print, or all the way to packaging and point-of-sale.',
+  'Who inside your world may use it — you and your agency, affiliates and retail partners, or sub-licensees.',
+  'How much you may change what we deliver — as-is, light edits, or full re-edit and remix.',
+  'How the work credits Summer Camp — co-branded, a simple tag, or no attribution at all.'];
+const SPOT_TIP='One of four voiceover-driven mini-docs we produce each season, each themed on a camp principle. Your brand presents it — it opens and closes on you. An ad spot with a soul.';
 const FLAME='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2 2.5 4.5 5.6 4.5 9.2 0 3-2 5.3-4.5 5.3s-4.5-2.3-4.5-5.3C7.5 8.6 10 5.5 12 3z"/><path d="M12 17.5c-1.1 0-2-.9-2-2 0-1.2 1-2.1 2-3.3 1 1.2 2 2.1 2 3.3 0 1.1-.9 2-2 2z"/></svg>';
 const flames = n => ('<span class="flames">'+FLAME.repeat(n)+'</span>');
 
@@ -883,7 +892,7 @@ function renderRights(){
     `<tr><th></th>${[0,1,2].map(L=>`<th>${RIGHT_NAMES[L]}${showPrices()?` (× ${+presetMult(L).toFixed(2)})`:''}</th>`).join('')}</tr>`+
     RIGHTS_MATRIX.map((r,ri)=>{
       const locked=er.locks[ri];
-      return `<tr class="${locked?'locked-row':''}"><th>${r[0]}</th>`+
+      return `<tr class="${locked?'locked-row':''}"><th data-tip="${RIGHTS_TIPS[ri]}"><span class="tip-hint">${r[0]}</span></th>`+
         [1,2,3].map(ci=>{
           const L=ci-1, on=er.rows[ri]===L && !locked;
           const w=L>0?config.rw[ri][L-1]:0;
@@ -900,7 +909,7 @@ function renderRights(){
 
 function renderSpots(){
   $('spotRows').innerHTML = SPOTS.map((n,i)=>
-    `<div class="toggle-row"><span class="toggle-name">${n}</span>
+    `<div class="toggle-row"><span class="toggle-name" data-tip="${SPOT_TIP}"><span class="tip-hint">${n}</span></span>
       <span class="toggle-price">${showPrices()?fmt(config.prices.scriptedSpot.v):''}</span>
       <button class="switch" aria-pressed="${state.spots[i]}" aria-label="Presenting sponsor: ${n}" data-i="${i}"></button></div>`).join('');
   $('spotRows').querySelectorAll('.switch').forEach(b=>b.onclick=()=>{
@@ -994,21 +1003,6 @@ function renderSummary(){
     `<div class="sumline${ind?' indent':''}"><span>${l}</span>${P?`<span class="amt">${fmt(v)}</span>`:''}</div>`).join('')
     +((P&&c.relicense)?`<div class="sumline indent"><span>Future revenue: re-license fee per 6-mo renewal (+${config.relicensePct}%)</span><span class="amt">${fmt(c.relicense)}</span></div>`:'');
   $('totalOut').textContent = fmt(c.total);
-
-  const tiers=[...config.tiers].sort((a,b)=>a.price-b.price);
-  const fit = tiers.find(t=>c.total<=t.price);
-  let html;
-  if(c.total===0){ html='<span class="fit">Empty plate</span>Start toggling menu items, or pick a package above.'; }
-  else if(fit){
-    const pct=Math.round(c.total/fit.price*100);
-    const eyebrow=TIER_EYEBROWS[config.tiers.indexOf(fit)]||'';
-    html=`<span class="fit">Fits ${fit.name}${eyebrow?' ('+eyebrow+')':''} — ${fmt(fit.price)}</span>${fmt(fit.price-c.total)} of headroom (${pct}% of tier)`+
-      `<div class="tier-bar"><i style="width:${pct}%"></i></div>`;
-  } else {
-    const top=tiers[tiers.length-1];
-    html=`<span class="fit">Above ${top.name} — custom deal</span>${fmt(c.total-top.price)} over the top tier.`;
-  }
-  $('tierBadge').innerHTML=html;
 }
 
 /* ---------- sticky deal bar ---------- */
@@ -1253,16 +1247,7 @@ function renderBar(){
   wireCatChips($('barCatPop'));
 
   $('barTotal').textContent=fmt(c.total);
-  if(tgt){
-    const diff=tgt.price-c.total, over=diff<0;
-    $('barHeadroom').innerHTML = over
-      ? `<b>${fmt(-diff)} over ${tgt.name}</b>`
-      : `<b>${fmt(diff)}</b> left under ${tgt.name}`;
-    $('barHeadroom').classList.toggle('over',over);
-  } else {
-    $('barHeadroom').innerHTML='season total';
-    $('barHeadroom').classList.remove('over');
-  }
+  $('barHeadroom').textContent='season total';
 }
 
 function renderRateCard(){
@@ -1334,6 +1319,13 @@ function updateActStuck(){
 }
 window.addEventListener('scroll',updateActStuck,{passive:true});
 
+/* explainer tips: tapping a dotted label toggles its bubble; tapping anywhere
+   else closes it — the touch counterpart of hover */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tip]');
+  document.querySelectorAll('[data-tip].tip-open').forEach(el=>{if(el!==t)el.classList.remove('tip-open')});
+  if(t) t.classList.toggle('tip-open');
+});
 const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
 document.querySelectorAll('.h2row[data-acc]').forEach(h=>{
   const sec=h.closest('section');
@@ -1448,7 +1440,7 @@ function buildPrintSheet(){
     <h1>Sponsorship Proposal</h1>
     <p class="p-sub">${fit?fit.name+' package':'Custom package'}${catName?' · '+catName:''} · prepared ${d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>
     ${actRows.length?`<h2>Activities Footage</h2>
-      <p>Captured across four week-long camps on Lake Burton — every item NIL cleared and AI-free.</p>
+      <p>Captured across four week-long camps on Lake Burton — every item NIL cleared.</p>
       <table>${actRows.join('')}</table>`:''}
     ${spotRows?`<h2>Scripted Spots</h2>
       <p>Presenting sponsorship of a Summer Camp mini-doc.</p><table>${spotRows}</table>`:''}
@@ -1884,7 +1876,6 @@ ${rHTML}
 <p>First, the people. Every songwriter on camera has signed a release covering their name, image, and likeness for sponsor use consistent with Section 3 — that clearance is our responsibility, and we warrant it. What the writers haven’t done is sell themselves: their likenesses are licensed for your permitted uses, never assigned, and nothing here makes any writer your endorser beyond the delivered content.</p>
 ${relLine}
 <p>Third, the marks. “Summer Camp for Songwriters,” our logos, and our trade dress remain ours, licensed to you only as needed for the attribution and co-branding this agreement describes. The same goes in reverse: we’ll use your name and marks only to deliver what’s promised here (and to say, accurately and proudly, that you were a 2026 sponsor).</p>
-<p>Fourth, the machines. Delivered footage is for the human audiences described in Section 3 — neither party will use the other’s material, or the writers’ likenesses, to train artificial-intelligence systems.</p>
 
 <h2>5. The investment</h2>
 <p>The season total for this package is <b>${fmt(c.total)}</b>, payable ${agrBlank(50)}% on signing with the remainder due by ${agrBlank(150)}. Amounts more than fifteen days late accrue simple interest at 1% per month. If the package later grows or renews, we’ll paper it as a short signed amendment rather than starting over.</p>
