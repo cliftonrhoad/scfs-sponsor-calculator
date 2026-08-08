@@ -1,0 +1,13 @@
+project_id = "scfs-sponsor-calculator"
+
+[auth]
+site_url = "https://cliftonrhoad.github.io/scfs-sponsor-calculator"
+additional_redirect_urls = ["https://cliftonrhoad.github.io/scfs-sponsor-calculator", "http://localhost:8000"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[auth.email.template.magic_link]
+subject = "Your Sponsor Calculator sign-in code"
+content_path = "./supabase/templates/magic_link.html"
