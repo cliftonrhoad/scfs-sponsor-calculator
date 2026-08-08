@@ -975,6 +975,29 @@ function computePackageState(tierIdx,catKey,priceOverride){
   s.exclUser=state.exclUser;
   s.exclusivity = s.exclUser!==null ? s.exclUser : tierIdx===2;
   s.buyout=state.buyout;
+  /* custom budgets: the shape's fixed items are kept only while they fit,
+     scholarship first — the smallest yes is a Patron scholarship. Tier
+     presets are untouched (every tier affords its shape). */
+  if(priceOverride!=null){
+    let avail=priceOverride;
+    if(!L.sch){
+      const want=cat.sch[tierIdx]||1;
+      s.scholarships=Math.min(want, Math.floor(avail/p('scholarship')));
+      avail-=s.scholarships*p('scholarship');
+    }
+    if(!L.feedback){
+      Object.entries(cat.fb).forEach(([k,arr])=>{
+        const fit=Math.min(arr[tierIdx]||0, Math.floor(avail/p(k)));
+        s.feedback[k]=fit; avail-=fit*p(k);
+      });
+    }
+    if(!L.spots){
+      s.spots=s.spots.map(on=>{
+        if(on && avail>=p('scriptedSpot')){ avail-=p('scriptedSpot'); return true }
+        return false;
+      });
+    }
+  }
   const fixed = s.spots.filter(Boolean).length*p('scriptedSpot')
     + FEEDBACK.reduce((t,[k])=>t+s.feedback[k]*p(k),0)
     + s.scholarships*p('scholarship');
@@ -1067,6 +1090,7 @@ function pickCategory(k){
 function setBudget(v){
   v=Math.round(+v||0);
   if(v>0){
+    v=Math.max(3000,v); /* floor: one scholarship — custom deals start there */
     state.customBudget=v; state.target=null;
     rebuildToTarget();
   } else { state.customBudget=null; update(); }
@@ -1082,7 +1106,7 @@ function renderHero(){
     `<div class="hero-card custom-card ${cb?'active':''}" id="customCard" role="group" aria-label="Custom budget">
       <span class="hc-eyebrow">Patron</span>
       <span class="hc-name">Custom</span>
-      <span class="hc-price"><span class="bf-dollar">$</span><input id="budgetInput" type="number" inputmode="numeric" min="0" value="${cb||''}" aria-label="Custom budget amount"><span class="hc-season"> / season</span></span>
+      <span class="hc-price"><span class="bf-dollar">$</span><input id="budgetInput" type="number" inputmode="numeric" min="0" placeholder="3000+" value="${cb||''}" aria-label="Custom budget amount, starts at $3,000" title="Custom budgets start at $3,000 — one scholarship"><span class="hc-season"> / season</span></span>
     </div>`
     + config.tiers.map((tier,i)=>
     `<button class="hero-card ${cb===null&&t===i?'active':''}" data-i="${i}" aria-pressed="${cb===null&&t===i}">
@@ -1148,7 +1172,7 @@ function renderChips(){
     'sec-rights':rightsLabel(c.er),
     'sec-spots':state.spots.filter(Boolean).length+' of 4',
     'sec-feedback':(state.feedback.survey+state.feedback.videoCall+state.feedback.videoSpot+state.feedback.testimonial)+' booked',
-    'sec-extras':state.scholarships+' named' };
+    'sec-extras':state.scholarships+' provided' };
   Object.entries(vals).forEach(([id,v])=>{
     const chip=document.querySelector(`#${id} [data-chip]`); if(chip) chip.textContent=v;
   });
