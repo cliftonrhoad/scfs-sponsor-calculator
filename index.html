@@ -492,12 +492,24 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 .slot-save{flex:none;width:44px;display:inline-flex;align-items:center;justify-content:center;
   background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0}
 .slot-save:hover{color:var(--ink)}
-.slot-card{flex:1;min-width:0;font-family:var(--display);font-size:15px;text-transform:uppercase;
+.slot-card{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--display);font-size:15px;text-transform:uppercase;
   letter-spacing:.04em;color:var(--ink);background:transparent;border:1px dashed var(--ink-faint);
   border-radius:6px;padding:12px 8px;cursor:pointer;line-height:1.1;text-align:center}
 .slot-card:hover{border-color:var(--ink)}
+.slot-card.filled{border-style:solid;border-color:var(--ink)}
 .slot-card.empty{color:var(--ink-faint);cursor:default}
 .slot-card.empty:hover{border-color:var(--ink-faint)}
+.slot-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot-pencil{flex:none;display:inline-flex;color:var(--ink-dim);cursor:pointer}
+.slot-pencil:hover{color:var(--ink)}
+.slot-card.editing{padding:6px;cursor:default}
+.slot-edit{width:100%;background:var(--ground);border:1px solid var(--ink-faint);border-radius:3px;
+  color:var(--white);font-family:var(--data);font-size:13px;padding:7px 8px;text-align:center}
+.slot-edit:focus{outline:2px solid var(--ink);outline-offset:1px}
+.slot-del{flex:none;width:34px;display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0}
+.slot-del:hover{color:var(--ink)}
 .slot-list-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px solid var(--ink-faint)}
 .slot-name{flex:1;min-width:0;text-align:left;background:none;border:none;color:var(--white-dim);
   cursor:pointer;font-size:12.5px;font-family:var(--data);padding:3px 0;overflow:hidden;
@@ -1487,7 +1499,7 @@ if(!state.locks)state.locks={acts:false,rights:false,spots:false,feedback:false,
 if(!state.actLocks)state.actLocks={Music:false,Meals:false,Camp:false};
 /* ================= CLOUD: BOOT / AUTH / SAVED PROPOSALS ================= */
 function esc(s){return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
-let mySlots={}, adminConfigs=null, authMode='idle', authEmail='', authBusy=false, authErr='';
+let mySlots={}, adminConfigs=null, authMode='idle', authEmail='', authBusy=false, authErr='', editingSlot=null;
 
 function renderAuth(){
   const box=$('authBox'); if(!box) return;
@@ -1541,7 +1553,9 @@ function renderAuth(){
   }
 }
 
-const SAVE_LG='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>';
+const SAVE_LG='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>';
+const PENCIL_SM='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>';
+const TRASH_LG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>';
 
 /* ---------- brand modal machinery ---------- */
 function positionModal(){
@@ -1595,7 +1609,7 @@ function applyLoadedState(st){
   update(true);
 }
 async function loadSlots(){
-  mySlots={}; adminConfigs=null;
+  mySlots={}; adminConfigs=null; editingSlot=null;
   if(!session){renderSlots();return}
   const {data}=await sb.from('saved_configs').select('slot,name,state,updated_at').eq('user_id',session.user.id);
   (data||[]).forEach(r=>{mySlots[r.slot]=r});
@@ -1611,9 +1625,23 @@ function renderSlots(){
   let h='<div class="slot-title">Saved Packages</div><div class="slot-sub">the disk saves your current board — tap a package to load it</div>';
   for(let i=1;i<=6;i++){
     const r=mySlots[i];
+    let card;
+    if(!r){
+      card=`<button class="slot-card empty" disabled>Saved Package ${i}</button>
+        <span class="slot-del" aria-hidden="true" style="visibility:hidden">${TRASH_LG}</span>`;
+    } else if(editingSlot===i){
+      card=`<div class="slot-card filled editing"><input class="slot-edit" id="slotEditInp" maxlength="60" value="${esc(r.name)}" aria-label="Rename package ${i}"></div>
+        <span class="slot-del" aria-hidden="true" style="visibility:hidden">${TRASH_LG}</span>`;
+    } else {
+      card=`<button class="slot-card filled" data-load="${i}" title="Load \u201c${esc(r.name)}\u201d">
+          <span class="slot-label">${esc(r.name)}</span>
+          <span class="slot-pencil" role="button" tabindex="0" data-rename="${i}" title="Rename" aria-label="Rename package ${i}">${PENCIL_SM}</span>
+        </button>
+        <button class="slot-del" data-del="${i}" title="Clear this slot" aria-label="Clear package ${i}">${TRASH_LG}</button>`;
+    }
     h+=`<div class="slot-row">
       <button class="slot-save" data-save="${i}" title="${r?`Save over \u201c${esc(r.name)}\u201d`:'Save the current board here'}" aria-label="Save current board to package ${i}">${SAVE_LG}</button>
-      <button class="slot-card ${r?'':'empty'}" data-load="${i}" ${r?`title="Load \u201c${esc(r.name)}\u201d"`:'disabled'}>Saved Package ${i}</button>
+      ${card}
     </div>`;
   }
   if(adminConfigs&&adminConfigs.length){
@@ -1623,9 +1651,48 @@ function renderSlots(){
     });
   }
   box.innerHTML=h;
-  box.querySelectorAll('[data-load]:not([disabled])').forEach(b=>b.onclick=()=>applyLoadedState(mySlots[+b.dataset.load].state));
+  box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>applyLoadedState(mySlots[+b.dataset.load].state));
   box.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveToSlot(+b.dataset.save));
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteSlot(+b.dataset.del));
   box.querySelectorAll('[data-adm]').forEach(b=>b.onclick=()=>applyLoadedState(adminConfigs[+b.dataset.adm].state));
+  box.querySelectorAll('[data-rename]').forEach(el=>{
+    const go=e=>{e.stopPropagation();e.preventDefault();editingSlot=+el.dataset.rename;renderSlots()};
+    el.onclick=go;
+    el.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')go(e)};
+  });
+  const inp=box.querySelector('#slotEditInp');
+  if(inp){
+    inp.focus(); inp.select();
+    const commit=async()=>{
+      const slot=editingSlot; editingSlot=null;
+      const name=inp.value.trim();
+      if(slot&&name&&name!==mySlots[slot].name){
+        const {error}=await sb.from('saved_configs')
+          .update({name,updated_at:new Date().toISOString()})
+          .eq('user_id',session.user.id).eq('slot',slot);
+        if(!error) mySlots[slot].name=name;
+      }
+      renderSlots();
+    };
+    inp.onblur=commit;
+    inp.onkeydown=e=>{
+      if(e.key==='Enter'){inp.onblur=null;commit()}
+      if(e.key==='Escape'){inp.onblur=null;editingSlot=null;renderSlots()}
+    };
+  }
+}
+async function deleteSlot(slot){
+  const r=mySlots[slot]; if(!r) return;
+  const ok=await modalConfirm({
+    title:`Clear Saved Package ${slot}?`,
+    sub:'this one\u2019s forever too',
+    body:`<p><b>${esc(r.name)}</b> goes back to the lake — the slot opens up and that build is gone for good.</p>`,
+    confirm:'Clear the slot', cancel:'Keep it'});
+  if(!ok) return;
+  const {error}=await sb.from('saved_configs').delete()
+    .eq('user_id',session.user.id).eq('slot',slot);
+  if(error) modalConfirm({title:'Couldn\u2019t clear it',body:`<p>${esc(error.message)}</p>`,confirm:'Close',cancel:null});
+  else loadSlots();
 }
 async function saveToSlot(slot){
   const existing=mySlots[slot];
