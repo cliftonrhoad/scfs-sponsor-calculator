@@ -24,6 +24,8 @@ keeps floating at the real screen bottom.
 (function(){
   var f=document.getElementById('scfs-embed');
   var origin='https://cliftonrhoad.github.io';
+  var m=location.search.match(/[?&]p=([a-z0-9]+)/i);
+  if(m){ f.src+=(f.src.indexOf('?')<0?'?':'&')+'p='+m[1]; }
   function view(){
     var r=f.getBoundingClientRect();
     f.contentWindow.postMessage({scfs:'view',top:-r.top,vh:window.innerHeight},origin);

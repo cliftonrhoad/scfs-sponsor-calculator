@@ -1690,7 +1690,7 @@ function renderSlots(){
           <span class="slot-label">${esc(r.name)}</span>
           <span class="slot-pencil" role="button" tabindex="0" data-rename="${i}" title="Rename or clear" aria-label="Rename or clear package ${i}">${PENCIL_SM}</span>
         </button>
-        <button class="slot-del" data-plane="${i}" title="Email this package’s agreement" aria-label="Email the agreement for package ${i}">${PLANE_SVG}</button>`;
+        <button class="slot-del" data-plane="${i}" title="Share this package — get a link" aria-label="Share package ${i}">${PLANE_SVG}</button>`;
     }
     h+=`<div class="slot-row">
       <button class="slot-save" data-save="${i}" title="${r?`Save over “${esc(r.name)}”`:'Save the current board here'}" aria-label="Save current board to package ${i}">${SAVE_LG}</button>
@@ -1706,7 +1706,7 @@ function renderSlots(){
   box.innerHTML=h;
   box.querySelectorAll('[data-load]').forEach(b=>b.onclick=()=>applyLoadedState(mySlots[+b.dataset.load].state));
   box.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveToSlot(+b.dataset.save));
-  box.querySelectorAll('[data-plane]').forEach(b=>b.onclick=()=>emailAgreement(+b.dataset.plane));
+  box.querySelectorAll('[data-plane]').forEach(b=>b.onclick=()=>sharePackage(+b.dataset.plane));
   box.querySelectorAll('[data-adm]').forEach(b=>b.onclick=()=>applyLoadedState(adminConfigs[+b.dataset.adm].state));
   box.querySelectorAll('[data-rename]').forEach(el=>{
     const go=e=>{e.stopPropagation();e.preventDefault();renameSlot(+el.dataset.rename)};
@@ -2055,16 +2055,53 @@ function openAgreement(stArg, pkgName){
     setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   }
 }
-function emailAgreement(slot){
+const SHARE_BASE='https://www.summercampforsongwriters.com/sponsorship-calculator';
+async function sharePackage(slot){
   const r=mySlots[slot]; if(!r) return;
-  openAgreement(r.state, r.name);
-  const keep=state;
-  state={...BLANK_STATE(),...structuredClone(r.state)};
-  const total=compute().total;
-  state=keep;
-  const subj=encodeURIComponent('The paperwork for the fun stuff — “'+r.name+'” × Summer Camp for Songwriters');
-  const body=encodeURIComponent('Hi!\n\nOur Summer Camp for Songwriters sponsorship agreement for “'+r.name+'” is drafted — season total '+fmt(total)+'.\n\nThe draft just opened in a new tab: save it as a PDF (Print → Save as PDF), attach it here, and send it on.\n\nSee you at the lake,\n');
-  setTimeout(()=>{ location.href='mailto:?subject='+subj+'&body='+body; },500);
+  const id=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);
+  const {error}=await sb.from('shared_packages').insert({id,name:r.name,state:r.state});
+  if(error){
+    modalConfirm({title:'Couldn’t create the link',body:`<p>${esc(error.message)}</p>`,confirm:'Close',cancel:null});
+    return;
+  }
+  const url=SHARE_BASE+'?p='+id;
+  openModal(`<h3>Send “${esc(r.name)}”</h3>
+    <div class="m-sub">anyone with this link opens the package, priced and ready</div>
+    <p>The link carries the build — quantities, rights, the whole board — never your rate card. It opens locked, so what you send is what they see first.</p>
+    <input class="auth-input" id="shareUrl" type="text" readonly value="${esc(url)}" aria-label="Share link">
+    <div class="m-btns">
+      <button class="btn btn-quiet" id="shareMail">Email it</button>
+      <button class="btn primary" id="shareCopy">Copy link</button>
+    </div>`);
+  const inp=$('shareUrl');
+  inp.onclick=()=>inp.select();
+  $('shareCopy').onclick=async()=>{
+    let ok=false;
+    try{ await navigator.clipboard.writeText(url); ok=true; }
+    catch(e){ inp.select(); try{ ok=document.execCommand('copy'); }catch(e2){} }
+    $('shareCopy').textContent=ok?'Copied ✓':'Select + copy above';
+  };
+  $('shareMail').onclick=()=>{
+    const subj=encodeURIComponent('A Summer Camp for Songwriters package, built for you — “'+r.name+'”');
+    const body=encodeURIComponent('Hi!\n\nWe put together a sponsorship package for you. Open it here and poke around:\n\n'+url+'\n\nEverything reprices live as you explore — unlock any section to make it yours.\n\nSee you at the lake,\n');
+    location.href='mailto:?subject='+subj+'&body='+body;
+  };
+  $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))closeModal()};
+}
+async function maybeLoadShared(){
+  const m=location.search.match(/[?&]p=([a-z0-9]{6,20})/i);
+  if(!m) return;
+  try{
+    const {data,error}=await sb.rpc('get_shared_package',{share_id:m[1]});
+    const row=data&&data[0];
+    if(error||!row) return;
+    const ok=await modalConfirm({
+      title:'A package, prepared for you',
+      sub:esc(row.name),
+      body:'<p>Summer Camp for Songwriters built this proposal and sent you the link. Open it to see the full package — every section starts locked. Unlock anything to make it yours, and sign in to save your version or send one back.</p>',
+      confirm:'Open the package', cancel:'Not now'});
+    if(ok) applyLoadedState(row.state);
+  }catch(e){}
 }
 
 async function refreshRole(){
@@ -2090,6 +2127,7 @@ async function boot(){
   $('bootVeil').remove();
   renderLocks();
   update(true);
+  maybeLoadShared();
   sb.auth.onAuthStateChange((_evt,s)=>{ session=s; refreshRole(); });
 }
 boot();
