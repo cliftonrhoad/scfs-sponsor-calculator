@@ -421,7 +421,10 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   section{padding:14px 14px 16px}
   /* title left, hand-note right, one line */
   .h2row{flex-wrap:nowrap;align-items:baseline}
-  .h2row h2{font-size:19px;white-space:nowrap;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .h2row h2{font-size:16px;white-space:nowrap;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  /* the status chips repeat what the open section says — on a phone the
+     title needs the room more */
+  .h2row .sub-chip{display:none}
   .h2row .hand-note{display:none}
   .hand-note{font-size:15px;text-align:right;flex:1 1 auto;min-width:0}
   .tier-hero{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
