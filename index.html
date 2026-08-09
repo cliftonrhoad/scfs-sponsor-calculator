@@ -227,9 +227,12 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 
 /* ---------- sticky deal bar ---------- */
 .wrap{padding-bottom:120px}
-.deal-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);
-  border-top:4px solid var(--ink-faint);display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:10px 14px;padding:10px 18px 12px;transform:translateY(110%);transition:transform .35s ease}
+.deal-bar{position:fixed;left:0;right:0;bottom:12px;z-index:30;background:var(--panel);
+  margin:0 auto;width:min(1160px,calc(100% - 40px));
+  border:1px solid var(--ink-faint);border-radius:6px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px 14px;padding:10px 16px 12px;
+  transform:translateY(calc(110% + 14px));transition:transform .35s ease}
 .deal-bar.show{transform:translateY(0)}
 @media(prefers-reduced-motion:reduce){.deal-bar{transition:none}}
 .bar-chips{display:flex;gap:8px;align-items:center;flex-wrap:nowrap;min-width:0;margin-right:auto}
@@ -409,7 +412,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
 /* phone: compress chrome, icon-only pills, scroll tracks keep desktop geometry */
 @media(max-width:480px){
   .wrap{padding:20px 12px 150px;gap:16px}
-  .deal-bar{padding:8px 10px;gap:8px;flex-wrap:wrap}
+  .deal-bar{padding:8px 10px;gap:8px;flex-wrap:wrap;width:calc(100% - 24px);bottom:8px}
   .chip{padding:4px 8px;font-size:12px}
   .chip span{font-size:12px}
   .chip-load{font-size:14px}
@@ -471,12 +474,7 @@ html.autofit body{position:relative}
 /* embed deal bar wears the section design language: floating card, quiet
    1px outline, capped to the content columns' width. No hover treatment —
    a viewport-tracking bar sliding under an idle cursor reads as a glitch. */
-html.autofit .deal-bar{position:absolute;left:0;right:0;bottom:auto;margin:0 auto;
-  width:min(1160px,calc(100% - 40px));
-  border:1px solid var(--ink-faint);border-radius:6px;padding:12px 16px 14px}
-@media(max-width:480px){
-  html.autofit .deal-bar{width:calc(100% - 24px)}
-}
+html.autofit .deal-bar{position:absolute;bottom:auto}
 /* fixed-mode hiding slides the bar below the viewport; absolute-mode can't,
    so hide the not-shown bar outright */
 html.autofit .deal-bar:not(.show){display:none}
