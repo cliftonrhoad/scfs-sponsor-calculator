@@ -2082,7 +2082,7 @@ async function sharePackage(slot){
     $('shareCopy').textContent=ok?'Copied ✓':'Select + copy above';
   };
   $('shareMail').onclick=()=>{
-    const subj=encodeURIComponent('A Summer Camp for Songwriters package, built for you — “'+r.name+'”');
+    const subj=encodeURIComponent('A sponsorship package, built for you — “'+r.name+'”');
     const body=encodeURIComponent('Hi!\n\nWe put together a sponsorship package for you. Open it here and poke around:\n\n'+url+'\n\nEverything reprices live as you explore — unlock any section to make it yours.\n\nSee you at the lake,\n');
     location.href='mailto:?subject='+subj+'&body='+body;
   };
