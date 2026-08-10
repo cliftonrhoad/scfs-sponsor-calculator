@@ -756,24 +756,24 @@ const SPOTS = [
 
 /* [name, group, camCap, photoCap, videoCap, recapCap] */
 const ACTIVITIES = [
-  ['Songwriting Sessions (72)','Music',40,20,20],
-  ['Song Show & Tell Performances (4)','Music',40,20,20],
-  ['Live Streamed Performances (36)','Music',40,20,20],
-  ['Making of the Song Interviews (36)','Music',40,20,20],
-  ['Demo Day Playback Party (4)','Music',40,20,20],
-  ['Breakfast Bar Grab & Go (24)','Meals',40,20,20],
-  ['Family Style Plated Brunch (20)','Meals',40,20,20],
-  ['Family Style Plated Dinner (12)','Meals',40,20,20],
-  ['Swim & Snacks Break (12)','Meals',40,20,20],
-  ['Opening Ceremonies Fire Pit Talk (4)','Camp',40,20,20],
-  ['Lakeshore Pavilion Team Building (4)','Camp',40,20,20],
-  ['Hike to Waterfall Sliding Rock (4)','Camp',40,20,20],
-  ['Watersports on Lake Burton (4)','Camp',40,20,20],
-  ['Breathwork & Yoga on the Dock (4)','Camp',40,20,20],
-  ['Party Barge Evening Cruise (4)','Camp',40,20,20],
-  ['Name Flag Making Arts & Crafts (4)','Camp',40,20,20],
-  ['Shuttle Bus Rides (20)','Camp',40,20,20],
-  ['Evergreen Outdoor B-Roll','Camp',40,20,20]
+  ['Songwriting Sessions (72)','Music',18,200,200],
+  ['Song Show & Tell Performances (4)','Music',2,20,20],
+  ['Live Streamed Performances (36)','Music',2,100,100],
+  ['Making of the Song Interviews (36)','Music',2,20,20],
+  ['Demo Day Playback Party (4)','Music',2,20,20],
+  ['Breakfast Bar Grab & Go (24)','Meals',2,20,20],
+  ['Family Style Plated Brunch (20)','Meals',2,20,20],
+  ['Family Style Plated Dinner (12)','Meals',2,20,20],
+  ['Swim & Snacks Break (12)','Meals',2,20,20],
+  ['Opening Ceremonies Fire Pit Talk (4)','Camp',2,20,20],
+  ['Lakeshore Pavilion Team Building (4)','Camp',2,20,20],
+  ['Hike to Waterfall Sliding Rock (4)','Camp',2,20,20],
+  ['Watersports on Lake Burton (4)','Camp',2,20,20],
+  ['Breathwork & Yoga on the Dock (4)','Camp',2,20,20],
+  ['Party Barge Evening Cruise (4)','Camp',2,20,20],
+  ['Name Flag Making Arts & Crafts (4)','Camp',2,20,20],
+  ['Shuttle Bus Rides (20)','Camp',2,20,20],
+  ['Evergreen Outdoor B-Roll','Camp',2,20,20]
 ];
 const GROUPS=['Music','Meals','Camp'];
 
@@ -918,9 +918,9 @@ function renderSpots(){
 }
 
 const COLS=[
-  ['iPhone Carousel Dumps','cameraRoll',' per','A batch of raw clips straight off our iPhones — one carousel-ready dump of real-time, zero-polish coverage.'],
+  ['iPhone Carousel Dumps','cameraRoll',' per','A batch of 20 raw clips straight off our iPhones — one carousel-ready dump of real-time, zero-polish coverage.'],
   ['Edited Photo Selects','photoSelect',' per','Professionally shot photographs, hand-picked and edited.'],
-  ['Edited Video Selects','videoSelect',' per','Professionally shot video clips, color-corrected and trimmed.']];
+  ['Edited Video Selects','videoSelect',' per','Professionally shot video clips, color-corrected.']];
 const REFRESH_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
 function groupHeadHTML(g){
   const locked=!!(state.actLocks&&state.actLocks[g]);
@@ -1526,7 +1526,7 @@ if(state.exclUser===undefined)state.exclUser=null;
 if(state.rightsBase===undefined)state.rightsBase=null;
 if(state.buyout===undefined)state.buyout=false;
 if(state.rightsRows.length!==RIGHTS_MATRIX.length)state.rightsRows=RIGHTS_MATRIX.map(()=>0);
-if(Array.isArray(state.acts))state.acts=state.acts.map(a=>Array.isArray(a)?a.slice(0,3):[0,0,0]);
+if(Array.isArray(state.acts))state.acts=state.acts.map((a,i)=>Array.isArray(a)?a.slice(0,3).map((v,c)=>Math.min(v||0,ACTIVITIES[i]?ACTIVITIES[i][c+2]:0)):[0,0,0]);
 if(!state.locks)state.locks={acts:false,rights:false,spots:false,feedback:false,sch:false};
 if(!state.actLocks)state.actLocks={Music:false,Meals:false,Camp:false};
 /* ================= CLOUD: BOOT / AUTH / SAVED PROPOSALS ================= */
@@ -1657,7 +1657,7 @@ function applyLoadedState(st){
   state={...BLANK_STATE(),...structuredClone(st)};
   if(!Array.isArray(state.rightsRows)||state.rightsRows.length!==RIGHTS_MATRIX.length)
     state.rightsRows=RIGHTS_MATRIX.map(()=>0);
-  if(Array.isArray(state.acts))state.acts=state.acts.map(a=>Array.isArray(a)?a.slice(0,3):[0,0,0]);
+  if(Array.isArray(state.acts))state.acts=state.acts.map((a,i)=>Array.isArray(a)?a.slice(0,3).map((v,c)=>Math.min(v||0,ACTIVITIES[i]?ACTIVITIES[i][c+2]:0)):[0,0,0]);
   if(!state.actLocks)state.actLocks={Music:false,Meals:false,Camp:false};
   /* a loaded package arrives frozen — unlock a section to change it */
   state.locks=LOCK_ALL();
@@ -1842,9 +1842,9 @@ async function saveToSlot(slot){
    document styling on purpose — this is the un-branded artifact. Every
    generated draft carries a review-by-counsel disclaimer. */
 const AGR_FOOTAGE_EXPLAIN={
-  cam:['iPhone carousel dumps','batches of raw clips straight off our iPhones — each dump is a carousel-ready set of real-time, feels-like-you’re-there coverage, delivered exactly as shot: no color work, no trimming. Perfect for stories, community posts, and anything that benefits from being unpolished'],
+  cam:['iPhone carousel dumps','batches of twenty raw clips straight off our iPhones — each dump is a carousel-ready set of real-time, feels-like-you’re-there coverage, delivered exactly as shot: no color work, no trimming. Perfect for stories, community posts, and anything that benefits from being unpolished'],
   pho:['edited photo selects','professional photographs from our shooters, hand-picked from the season’s full take and individually edited before delivery'],
-  vid:['edited video selects','professionally shot video clips, color-corrected and trimmed by our editors — single polished moments, ready to publish or to cut into your own work where your modification rights below allow']};
+  vid:['edited video selects','professionally shot video clips, color-corrected by our editors — single polished moments, ready to publish or to cut into your own work where your modification rights below allow']};
 const AGR_FEEDBACK_EXPLAIN={
   survey:'a facilitated written survey, completed by the writers at camp: structured, candid product feedback from a room of working songwriters',
   videoCall:'a live, twenty-minute video call between your team and the writers at camp — ask anything, hear it unfiltered',
