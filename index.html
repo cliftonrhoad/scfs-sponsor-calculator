@@ -475,7 +475,7 @@ html.embedded #bootVeil{background:transparent}
 /* auto-fit embed: the host snippet's script sizes the frame to full content
    height (no internal scrolling) and streams viewport positions in; the deal
    bar switches from viewport-fixed to absolute and tracks the real screen */
-html.autofit body{position:relative}
+html.autofit body{position:relative;overflow-x:clip}
 /* embed deal bar wears the section design language: floating card, quiet
    1px outline, capped to the content columns' width. No hover treatment —
    a viewport-tracking bar sliding under an idle cursor reads as a glitch. */
