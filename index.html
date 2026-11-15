@@ -338,6 +338,8 @@ body.guided .wstep.on{display:block;animation:wfade .25s ease}
 @keyframes wfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){body.guided .wstep.on{animation:none}}
 body:not(.guided) .wiz-nav{display:none}
+/* guided: the rail stays a live receipt; actions live in the final step */
+body.guided #saveBtn,body.guided #talkBtn,body.guided #printBtn,body.guided #agreementBtn{display:none}
 @media(max-width:480px){
   .wiz-dot{width:26px;height:26px;font-size:13px}
   .wiz-label{font-size:15px}
