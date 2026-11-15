@@ -317,6 +317,34 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .callout{border:4px solid var(--ink);border-radius:6px;padding:12px 18px;margin-bottom:22px;
   font-size:13px;color:var(--white);text-align:center;line-height:1.5}
 
+/* ---------- guided mode (step-by-step) ---------- */
+.wiz-bar{display:flex;align-items:center;gap:12px;margin:0 0 18px;flex-wrap:wrap;min-height:30px}
+.wiz-dots{display:flex;gap:8px}
+.wiz-dot{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink-faint);
+  display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);
+  font-size:15px;color:var(--ink-dim);background:none;cursor:pointer;padding:2px 0 0}
+.wiz-dot.done{border-color:var(--ink);color:var(--ink)}
+.wiz-dot.now{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+.wiz-dot:disabled{cursor:default;opacity:.55}
+.wiz-label{font-family:var(--display);font-size:19px;text-transform:uppercase;letter-spacing:.03em}
+.wiz-sub{font-family:var(--hand);font-size:15px;color:var(--ink-dim)}
+.wiz-toggle{margin-left:auto;background:none;border:none;font-family:var(--hand);font-size:15px;
+  color:var(--ink-dim);text-decoration:underline;cursor:pointer}
+.wiz-toggle:hover{color:var(--ink)}
+.wiz-nav{display:flex;gap:10px;justify-content:space-between;align-items:center;margin:18px 0 6px}
+.wiz-nav .btn{width:auto;padding:10px 22px}
+body.guided .wstep{display:none}
+body.guided .wstep.on{display:block;animation:wfade .25s ease}
+@keyframes wfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){body.guided .wstep.on{animation:none}}
+body:not(.guided) .wiz-nav{display:none}
+@media(max-width:480px){
+  .wiz-dot{width:26px;height:26px;font-size:13px}
+  .wiz-label{font-size:15px}
+  .wiz-toggle{margin-left:0}
+  .wiz-nav .btn{padding:9px 14px;font-size:13px}
+}
+
 /* ---------- numbered stages ---------- */
 .stage-head{display:flex;align-items:center;gap:12px;margin:34px 0 8px}
 .stage-num{flex:none;width:34px;height:34px;border:1.5px solid var(--ink);border-radius:50%;
@@ -325,8 +353,6 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .stage-head h2{font-size:26px}
 .stage-head .hand-note{margin-left:auto;text-align:right}
 .zone-lede{font-size:12.5px;color:var(--ink-dim);margin:0 0 14px;max-width:62ch}
-.linkish{background:none;border:none;padding:0;font-family:var(--hand);font-size:15px;
-  color:var(--ink);text-decoration:underline;cursor:pointer}
 .rail-stage{margin:16px 0 4px;gap:9px}
 .rail-stage h2{font-size:18px}
 .rail-stage .stage-num{width:26px;height:26px;font-size:14px}
@@ -348,11 +374,6 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
   font-family:var(--hand);font-size:18px;color:var(--ink);
   text-shadow:0 1px 10px rgba(15,43,22,.95)}
 @media(max-width:480px){.hero-strip{height:120px}.hero-strip .strip-note{font-size:15px}}
-
-/* ---------- group thumbnails ---------- */
-.group-thumb{width:46px;height:31px;object-fit:cover;border-radius:3px;
-  border:1px solid var(--ink-faint);display:inline-block;vertical-align:middle;margin-right:9px}
-@media(max-width:480px){.group-thumb{width:34px;height:24px;margin-right:6px}}
 
 /* ---------- auth note ---------- */
 .auth-note{font-family:var(--hand);font-size:16px;color:var(--ink);margin:6px 0 0;line-height:1.2}
@@ -609,14 +630,16 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 </header>
 
 <main>
-  <div class="callout">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
+<div id="wizBar" class="wiz-bar"></div>
 
-  <div class="stage-head"><span class="stage-num">1</span><h2>Your Budget</h2><span class="hand-note">two ways in — no wrong door</span></div>
-  <p class="zone-lede">Grab a package below and tune it to taste — or skip the tiers and <button class="linkish" id="alacarteBtn">build it à la carte</button>; the price finds its tier as you go.</p>
+<div class="wstep" data-ws="1">
+  <div class="callout">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
   <div class="tier-hero" id="tierHero"></div>
   <div class="cat-row" id="catRow" role="group" aria-label="Sponsor category and budget"></div>
+  <div class="wiz-nav"><span></span><button class="btn btn-quiet" data-wnext>Skip the packages — build it à la carte →</button></div>
+</div>
 
-  <div class="stage-head"><span class="stage-num">2</span><h2>Your Package</h2><span class="hand-note">open a section, poke around</span></div>
+<div class="wstep" data-ws="2">
   <section id="sec-activities" class="collapsed">
     <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Activities Footage</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="acts" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="acts" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
@@ -624,7 +647,10 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
       <div class="act-scroll"><table class="act-table" id="actTable"></table></div>
     </div>
   </section>
+  <div class="wiz-nav"><button class="btn btn-quiet" data-wback>← Back</button><button class="btn primary" data-wnext>Continue to the extras →</button></div>
+</div>
 
+<div class="wstep" data-ws="3">
   <section id="sec-spots" class="collapsed">
     <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Scripted Spots</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="spots" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="spots" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
@@ -669,8 +695,10 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <div class="callout">We can also distribute product or onboard writers with discount codes or free trials; we're happy to facilitate giveaways or contests to increase engagement — or otherwise drive brand awareness for our partners.</div>
+  <div class="wiz-nav"><button class="btn btn-quiet" data-wback>← Back</button><button class="btn primary" data-wnext>Continue to usage rights →</button></div>
+</div>
 
-  <div class="stage-head"><span class="stage-num">3</span><h2>Your Rights</h2><span class="hand-note">this is where the price really lives</span></div>
+<div class="wstep" data-ws="4">
   <section id="sec-rights" class="collapsed">
     <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Usage Rights</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="rights" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="rights" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
@@ -681,7 +709,24 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
       <p class="boilerplate">Every license: Summer Camp retains copyright (unless Full Buyout) · worldwide · term licenses renew at the pre-set re-license fee.</p>
     </div>
   </section>
+  <div class="wiz-nav"><button class="btn btn-quiet" data-wback>← Back</button><button class="btn primary" data-wnext>Continue — make it real →</button></div>
+</div>
 
+<div class="wstep" data-ws="5">
+  <section>
+    <div class="h2row"><h2>Make It Real</h2><span class="hand-note">numbers stay negotiable</span></div>
+    <div class="sec-body">
+      <p class="section-lede">This sheet is a starting point, not a corner. Save it to your account, take the one-pager, read the plain-language agreement — or just talk it through with us.</p>
+      <span class="total-label">season total</span>
+      <div class="total" id="wizTotal">$0</div>
+      <button class="btn wide primary" id="wizSave">Save the package</button>
+      <a class="btn wide" href="https://calendly.com/camp-summercampforsongwriters/30min" target="_blank" rel="noopener">Talk it through with us</a>
+      <button class="btn wide btn-quiet" id="wizPrint">Print the one-pager</button>
+      <button class="btn wide" id="wizAgree">View the agreement</button>
+    </div>
+  </section>
+  <div class="wiz-nav"><button class="btn btn-quiet" data-wback>← Back</button><span></span></div>
+</div>
 </main>
 
 <aside class="side-col" aria-label="Deal summary">
@@ -691,7 +736,6 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   <hr class="sum-divider">
   <span class="total-label">season total</span>
   <div class="total" id="totalOut">$0</div>
-  <div class="stage-head rail-stage"><span class="stage-num">4</span><h2>Make It Real</h2></div>
   <button class="btn wide primary" id="saveBtn">Save the package</button>
   <a class="btn wide" id="talkBtn" href="https://calendly.com/camp-summercampforsongwriters/30min" target="_blank" rel="noopener">Talk it through with us</a>
   <button class="btn wide btn-quiet" id="printBtn">Print the one-pager</button>
@@ -969,10 +1013,9 @@ const COLS=[
   ['Edited Photo Selects','photoSelect',' per','Professionally shot photographs, hand-picked and edited.'],
   ['Edited Video Selects','videoSelect',' per','Professionally shot video clips, color-corrected.']];
 const REFRESH_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
-const GROUP_THUMBS={Music:'https://images.squarespace-cdn.com/content/v1/612d958cb1f7dc318f15cfa7/1760477290316-1V2OZG29OCR3PCQ6UKXH/_ZMA7554.JPG?format=500w',Meals:'https://images.squarespace-cdn.com/content/v1/612d958cb1f7dc318f15cfa7/1734151753353-5UVFIJ3XYGZ9L6YFYAK2/IMG_8771-Enhanced-NR+copy.jpg?format=500w',Camp:'https://images.squarespace-cdn.com/content/v1/612d958cb1f7dc318f15cfa7/1734314615538-IXV6S2GQJEAPLYJ3RV6I/1E4A0211+copy.jpg?format=500w'};
 function groupHeadHTML(g){
   const locked=!!(state.actLocks&&state.actLocks[g]);
-  return `<span class="group-head"><img class="group-thumb" src="${GROUP_THUMBS[g]}" alt="" loading="lazy"><span>${g}</span>
+  return `<span class="group-head"><span>${g}</span>
     <button class="gbtn-icon" data-g="${g}" title="Clear ${g} group" aria-label="Clear ${g} group">${REFRESH_SVG}</button>
     <button class="gbtn-icon glock ${locked?'locked':''}" data-glock="${g}" aria-pressed="${locked}" title="Keep ${g} selections when loading packages" aria-label="Lock ${g} group">${locked?LOCK_CLOSED:LOCK_OPEN}</button></span>`;
 }
@@ -1189,6 +1232,7 @@ function pickCategory(k){
   $('barCatPop').classList.remove('open');
   if(activeTarget()) rebuildToTarget(!!state.category);
   else update();
+  if(typeof wizActive==='function' && wizActive() && wizStep===1 && state.category && activeTarget()) gotoStep(2);
 }
 function setBudget(v){
   v=Math.round(+v||0);
@@ -1201,6 +1245,7 @@ function setBudget(v){
 function pickTier(i){
   state.target=i; state.customBudget=null;
   loadPreset(i);
+  if(typeof wizActive==='function' && wizActive() && wizStep===1) gotoStep(2);
 }
 const TIER_EYEBROWS=['Tier 3','Tier 2','Tier 1'];
 function renderHero(){
@@ -1295,6 +1340,7 @@ function renderBar(){
   wireCatChips($('barCatPop'));
 
   $('barTotal').textContent=fmt(c.total);
+  const wt=$('wizTotal'); if(wt) wt.textContent=fmt(c.total);
   $('barHeadroom').textContent='season total';
 }
 
@@ -1546,11 +1592,56 @@ function printOnePager(){
   setTimeout(()=>URL.revokeObjectURL(a.href),5000);
 }
 $('printBtn').onclick=printOnePager;
-$('alacarteBtn').onclick=()=>{
-  const sec=document.getElementById('sec-activities');
-  if(sec.classList.contains('collapsed')&&SEC_TOGGLES['sec-activities'])SEC_TOGGLES['sec-activities']();
-  sec.scrollIntoView({behavior:'smooth',block:'start'});
-};
+
+/* ================= GUIDED MODE ================= */
+const WIZ_TITLES=['Your starting point','The footage','The extras','Usage rights','Make it real'];
+let wizStep=Math.max(1,Math.min(5,+(localStorage.getItem('scfs-wiz-step')||1)));
+let guidedPref=localStorage.getItem('scfs-view')!=='all';
+function wizActive(){ return guidedPref && !isAdmin; }
+function setGuided(g){
+  guidedPref=g;
+  try{localStorage.setItem('scfs-view',g?'guided':'all')}catch(e){}
+  applyWiz();
+  if(g) $('wizBar').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function gotoStep(n){
+  wizStep=Math.max(1,Math.min(5,n));
+  try{localStorage.setItem('scfs-wiz-step',String(wizStep))}catch(e){}
+  applyWiz();
+  $('wizBar').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function renderWizBar(){
+  const bar=$('wizBar'); if(!bar) return;
+  if(isAdmin){ bar.innerHTML=''; return; }
+  if(!wizActive()){
+    bar.innerHTML=`<span class="wiz-sub">prefer a guided walk-through?</span>
+      <button class="wiz-toggle" id="wizOn" style="margin-left:0">step-by-step →</button>`;
+    $('wizOn').onclick=()=>setGuided(true);
+    return;
+  }
+  bar.innerHTML=`<span class="wiz-dots">${WIZ_TITLES.map((t,i)=>
+      `<button class="wiz-dot ${i+1<wizStep?'done':''} ${i+1===wizStep?'now':''}" data-wd="${i+1}" ${i+1>wizStep?'disabled':''} aria-label="Step ${i+1}: ${t}" title="${t}">${i+1}</button>`).join('')}</span>
+    <span class="wiz-label">${WIZ_TITLES[wizStep-1]}</span>
+    <span class="wiz-sub">step ${wizStep} of 5</span>
+    <button class="wiz-toggle" id="wizOff">see the whole menu at once</button>`;
+  bar.querySelectorAll('.wiz-dot:not([disabled])').forEach(b=>b.onclick=()=>gotoStep(+b.dataset.wd));
+  $('wizOff').onclick=()=>setGuided(false);
+}
+function applyWiz(){
+  const on=wizActive();
+  document.body.classList.toggle('guided',on);
+  renderWizBar();
+  if(!on) return;
+  document.querySelectorAll('.wstep').forEach(w=>w.classList.toggle('on',+w.dataset.ws===wizStep));
+  document.querySelectorAll('.wstep.on section.collapsed').forEach(sec=>{
+    if(SEC_TOGGLES[sec.id]) SEC_TOGGLES[sec.id]();
+  });
+}
+document.querySelectorAll('[data-wnext]').forEach(b=>b.onclick=()=>gotoStep(wizStep+1));
+document.querySelectorAll('[data-wback]').forEach(b=>b.onclick=()=>gotoStep(wizStep-1));
+$('wizSave').onclick=()=>$('saveBtn').click();
+$('wizPrint').onclick=printOnePager;
+$('wizAgree').onclick=()=>openAgreement();
 $('agreementBtn').onclick=()=>openAgreement();
 $('saveBtn').onclick=()=>saveSmart();
 $('barClear').onclick=()=>{state=BLANK_STATE();update(true)};
@@ -2151,7 +2242,7 @@ async function maybeLoadShared(){
       sub:esc(row.name),
       body:'<p>Summer Camp for Songwriters built this proposal and sent you the link. Open it to see the full package — every section starts locked. Unlock anything to make it yours, and sign in to save your version or send one back.</p>',
       confirm:'Open the package', cancel:'Not now'});
-    if(ok) applyLoadedState(row.state);
+    if(ok){ applyLoadedState(row.state); if(wizActive()) gotoStep(5); }
   }catch(e){}
 }
 
@@ -2160,6 +2251,7 @@ async function refreshRole(){
   if(session){ try{const {data}=await sb.rpc('is_admin'); adm=!!data}catch(e){} }
   isAdmin=adm;
   document.body.classList.toggle('admin',isAdmin);
+  if(typeof applyWiz==='function') applyWiz();
   renderAuth();
   loadSlots();
   update(true);
@@ -2178,6 +2270,7 @@ async function boot(){
   $('bootVeil').remove();
   renderLocks();
   update(true);
+  applyWiz();
   maybeLoadShared();
   sb.auth.onAuthStateChange((_evt,s)=>{ session=s; refreshRole(); });
 }
