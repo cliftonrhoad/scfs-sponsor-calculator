@@ -1417,7 +1417,9 @@ function introOpen(sec){
   }
   body.style.overflow='hidden';
   body.style.maxHeight='0px';
-  body.style.transition='max-height .85s cubic-bezier(.22,1,.36,1)';
+  /* same curve family as the sibling accordions (.3s ease), scaled for a
+     section this tall so the unfurl velocity reads the same */
+  body.style.transition='max-height 1.3s ease';
   sec.classList.remove('collapsed');
   if(h)h.setAttribute('aria-expanded','true');
   requestAnimationFrame(()=>{body.style.maxHeight=body.scrollHeight+'px'});
@@ -1427,7 +1429,7 @@ function introOpen(sec){
     body.removeEventListener('transitionend',te); };
   const te=e=>{ if(e.target===body)fin(); };
   body.addEventListener('transitionend',te);
-  setTimeout(fin,1000);
+  setTimeout(fin,1500);
 }
 async function runIntro(){
   introBusy=true;
@@ -1446,7 +1448,7 @@ async function runIntro(){
       }
     }
     /* arrive, breathe, then unfurl */
-    await new Promise(r=>setTimeout(r,REDUCED?0:550));
+    await new Promise(r=>setTimeout(r,REDUCED?0:280));
     introOpen(sec);
   } finally { introBusy=false; }
 }
