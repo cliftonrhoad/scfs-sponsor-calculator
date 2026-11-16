@@ -254,11 +254,11 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .bar-headroom.over b{color:var(--white)}
 .bar-total{font-family:var(--display);font-size:30px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
 /* ---------- sponsor category chips ---------- */
-.cat-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:28px 0 48px}
+.cat-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:56px 0 0}
 .cat-label{font-family:var(--hand);font-size:18px;color:var(--ink-dim);margin-right:2px}
 .cat-chip{font-family:var(--display);font-size:12px;text-transform:uppercase;letter-spacing:.05em;
   border:1px solid var(--ink-faint);color:var(--ink);background:transparent;border-radius:999px;
-  padding:5px 13px;cursor:pointer;line-height:1.2;display:inline-flex;align-items:center;gap:6px}
+  padding:15px 13px;cursor:pointer;line-height:1.2;display:inline-flex;align-items:center;gap:6px}
 .cat-chip svg{flex:none}
 .cat-chip:hover{border-color:var(--ink)}
 .cat-chip.active{background:var(--ink);color:var(--panel);border-color:var(--ink)}
@@ -317,9 +317,33 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .callout{border:4px solid var(--ink);border-radius:6px;padding:12px 18px;margin-bottom:22px;
   font-size:13px;color:var(--white);text-align:center;line-height:1.5}
 
+/* ---------- numbered menu heads ---------- */
+.menu-head{text-align:center;margin:96px 0 28px}
+.menu-head.first{margin-top:34px}
+.menu-head .mh-num{display:block;font-family:var(--display);font-size:44px;line-height:1;color:var(--ink)}
+.menu-head .mh-title{font-family:var(--display);font-size:30px;text-transform:uppercase;
+  letter-spacing:.02em;color:var(--ink);margin:8px 0 3px;line-height:1.1}
+.menu-head .mh-sub{font-family:var(--hand);font-size:19px;color:var(--ink);line-height:1.25}
+@media(max-width:480px){
+  .menu-head{margin:56px 0 20px}
+  .menu-head.first{margin-top:24px}
+  .menu-head .mh-num{font-size:30px}
+  .menu-head .mh-title{font-size:19px}
+  .menu-head .mh-sub{font-size:15px}
+}
+
+/* ---------- dim states ---------- */
+.custom-card{opacity:.35;transition:opacity .15s}
+.custom-card:hover,.custom-card:focus-within,.custom-card.active{opacity:1}
+section.sec-dim > .h2row h2{opacity:.35;transition:opacity .15s}
+@media(prefers-reduced-motion:reduce){.custom-card,section.sec-dim > .h2row h2{transition:none}}
+
 /* ---------- tier hero (start here) ---------- */
 .tier-hero-note{font-family:var(--hand);font-size:16px;color:var(--ink);margin:0 0 8px;text-align:center}
-.tier-hero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.tier-hero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px;align-items:start}
+.tier-hero > :nth-child(2){padding-bottom:34px}
+.tier-hero > :nth-child(3){padding-bottom:54px}
+.tier-hero > :nth-child(4){padding-bottom:74px}
 .hero-card{font-family:var(--display);text-transform:uppercase;letter-spacing:.03em;text-align:left;
   background:var(--panel);border:1px solid var(--ink-faint);border-radius:6px;padding:16px 16px 14px;
   color:var(--ink);cursor:pointer;line-height:1.1;min-width:0;overflow:hidden;
@@ -430,6 +454,9 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .h2row .hand-note{display:none}
   .hand-note{font-size:15px;text-align:right;flex:1 1 auto;min-width:0}
   .tier-hero{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .tier-hero > :nth-child(2){padding-bottom:17px}
+  .tier-hero > :nth-child(3){padding-bottom:27px}
+  .tier-hero > :nth-child(4){padding-bottom:37px}
   .hero-card{padding:9px 8px 7px}
   .hero-card .hc-name{font-size:16px}
   .hero-card .hc-price{font-size:14px;margin-bottom:0}
@@ -441,7 +468,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .custom-card input{width:52px;font-size:14px}
   .custom-card input::placeholder{font-size:14px}
   .cat-chip .cat-txt{display:none}
-  .cat-chip{padding:7px 10px}
+  .cat-chip{padding:17px 10px}
   .excl-label{font-size:14px}
   .bar-cat-pop .cat-chip .cat-txt{display:inline}
   .h2row[data-acc]{grid-template-columns:minmax(0,1fr) auto auto auto auto;gap:7px}
@@ -562,20 +589,29 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 
 <div class="wrap">
 <header>
-  <div class="brandline">Summer Camp for Songwriters</div>
-  <h1>2027 Sponsor Menu Calculator</h1>
-  <p class="sub">adjust the menu, watch the deal price itself</p>
+  <div class="brandline">Sponsorship Deliverables Menu</div>
+  <h1>Auto-generate a sponsorship package from your budget and category. Then modify it.</h1>
+  <p class="sub">This is basically a giant calculator that allows you to reverse engineer a budget or add up some deliverables and auto-generate an agreement based on exactly what you want</p>
 </header>
 
 <main>
   <div class="callout">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
 
-  <p class="tier-hero-note">start here — pick a package, then customize it</p>
+  <div class="menu-head first">
+    <span class="mh-num">1.</span>
+    <div class="mh-title">Set a Budget &amp; Select your Category</div>
+    <div class="mh-sub">This will auto-generate a sponsorship package you can modify below</div>
+  </div>
   <div class="tier-hero" id="tierHero"></div>
   <div class="cat-row" id="catRow" role="group" aria-label="Sponsor category and budget"></div>
 
+  <div class="menu-head">
+    <span class="mh-num">2.</span>
+    <div class="mh-title">Modify the Sponsorship Package</div>
+    <div class="mh-sub">Adjust footage &amp; rights plus additional offerings</div>
+  </div>
   <section id="sec-activities" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Activities Footage</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="acts" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="acts" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Select Footage Per Activity</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="acts" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="acts" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede">Quantities are caps from the menu. These line items get multiplied by the usage-rights option below.</p>
       <div class="act-scroll"><table class="act-table" id="actTable"></table></div>
@@ -583,7 +619,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-rights" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Usage Rights</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="rights" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="rights" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Adjust Your Usage Rights</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="rights" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="rights" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede lede-indent">Each row adds its own weight to the footage multiplier. The A/B/C buttons are presets that set all rows at once — click any cell to override a single row. Each option includes everything to its left.</p>
       <div class="seg" id="rightsSeg" role="radiogroup" aria-label="Usage rights preset"></div>
@@ -594,7 +630,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-spots" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Scripted Spots</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="spots" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="spots" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Sponsor Our Scripted Spots</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="spots" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="spots" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede">Presenting sponsorship of a Summer Camp mini-doc. Flat price, not affected by the rights multiplier.</p>
       <div class="row-scroll"><div id="spotRows" class="row-track"></div></div>
@@ -602,7 +638,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-extras" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Patron Scholarship Packages</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="sch" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="sch" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Provide Scholarships</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="sch" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="sch" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <div class="row-scroll"><div id="extraRows" class="row-track"></div></div>
       <div class="perk-cols">
@@ -629,7 +665,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </section>
 
   <section id="sec-feedback" class="collapsed">
-    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Captive Audience Feedback</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="feedback" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="feedback" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
+    <div class="h2row" data-acc role="button" tabindex="0" aria-expanded="false"><h2>Get Captive Audience Feedback</h2><span class="sub-chip" data-chip>—</span><button class="lock-btn sec-refresh" data-refresh="feedback" title="Reset this section to the loaded package" aria-label="Reset section"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="lock-btn" data-lock="feedback" aria-pressed="false" title="Keep this section when loading packages"></button><span class="caret" aria-hidden="true"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 8h15L12 18.5z"/></svg></span></div>
     <div class="sec-body">
       <p class="section-lede">Live activations with the writers. Priced flat — these ship with Mixed-equivalent usage rights baked in, so the footage multiplier doesn't touch them.</p>
       <div class="row-scroll"><div id="feedbackRows" class="row-track"></div></div>
@@ -1190,8 +1226,7 @@ function wireCatChips(el){
 }
 function renderCats(){
   $('catRow').innerHTML =
-    `<span class="excl-label cat-select-label">select<br>a preset</span>`
-    + catChipsHTML()
+    catChipsHTML()
     + `<button class="gbtn-icon" id="catReset" title="Deselect preset and revert to the selected tier" aria-label="Deselect preset">${REFRESH_SVG}</button>`
     + `<span class="excl-toggle"><span class="excl-label">category<br>exclusivity</span><button class="switch" id="exclChip" aria-pressed="${state.exclusivity}" aria-label="Category exclusivity${showPrices()?`, +${config.exclusivityPct}% of footage`:``}"></button></span>`;
   wireCatChips($('catRow'));
@@ -1215,6 +1250,14 @@ function rightsLabel(er){
   if(state.buyout) return 'Full Buyout';
   if(er.uniform) return RIGHT_NAMES[{A:0,B:1,C:2}[er.uniform]];
   return RIGHT_NAMES[state.rightsBase??0]+' Blend';
+}
+function renderDims(){
+  const c=compute();
+  const dim=(id,on)=>{const el=document.getElementById(id); if(el) el.classList.toggle('sec-dim',on)};
+  dim('sec-rights', (c.cam+c.pho+c.vid)===0);
+  dim('sec-spots', !state.spots.some(Boolean));
+  dim('sec-extras', state.scholarships===0);
+  dim('sec-feedback', !FEEDBACK.some(([k])=>state.feedback[k]>0));
 }
 function renderChips(){
   const c=compute();
@@ -1293,6 +1336,7 @@ function update(full){
   renderHero();
   renderCats();
   renderChips();
+  renderDims();
   renderLocks();
   renderRiders();
   updateActStuck();
