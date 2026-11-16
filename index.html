@@ -1182,7 +1182,10 @@ function rebuildToTarget(reveal){
 function pickCategory(k){
   state.category = state.category===k ? null : k;
   $('barCatPop').classList.remove('open');
-  if(activeTarget()) rebuildToTarget(!!state.category);
+  /* when the guided reveal is about to fire, it owns the unfurl — suppress
+     the build-time instant reveal so the section opens on arrival instead */
+  const introNext=((state.target!==null||!!state.customBudget)&&!!state.category)&&!introWas;
+  if(activeTarget()) rebuildToTarget(!!state.category&&!introNext);
   else update();
   maybeIntro();
 }
