@@ -628,7 +628,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 
   <p class="nil-note">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media</p>
 
-  <div class="menu-head">
+  <div class="menu-head" id="menuHead2">
     <span class="mh-num">2.</span>
     <div class="mh-title">Modify the Sponsorship Package</div>
     <div class="mh-sub">Adjust footage &amp; rights plus additional offerings</div>
@@ -1184,6 +1184,7 @@ function pickCategory(k){
   $('barCatPop').classList.remove('open');
   if(activeTarget()) rebuildToTarget(!!state.category);
   else update();
+  maybeIntro();
 }
 function setBudget(v){
   v=Math.round(+v||0);
@@ -1192,10 +1193,12 @@ function setBudget(v){
     state.customBudget=v; state.target=null;
     rebuildToTarget();
   } else { state.customBudget=null; update(); }
+  maybeIntro();
 }
 function pickTier(i){
   state.target=i; state.customBudget=null;
   loadPreset(i);
+  maybeIntro();
 }
 const TIER_EYEBROWS=['Tier 3','Tier 2','Tier 1'];
 function renderHero(){
@@ -1375,6 +1378,74 @@ document.addEventListener('click',e=>{
   if(t) t.classList.toggle('tip-open');
 });
 const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- guided reveal: budget + category -> glide to the menu ---------- */
+let introWas=false, introBusy=false;
+function introSync(){ introWas=(state.target!==null||!!state.customBudget)&&!!state.category; }
+function maybeIntro(){
+  const complete=(state.target!==null||!!state.customBudget)&&!!state.category;
+  const rising=complete&&!introWas;
+  introWas=complete;
+  if(rising&&!introBusy) runIntro();
+}
+function slowScrollTo(y,ms){return new Promise(res=>{
+  if(REDUCED){scrollTo(0,y);return res(true)}
+  const y0=scrollY,d=y-y0,t0=performance.now();
+  if(Math.abs(d)<2) return res(true);
+  let stop=false; const cancel=()=>{stop=true};
+  addEventListener('wheel',cancel,{once:true,passive:true});
+  addEventListener('touchstart',cancel,{once:true,passive:true});
+  const step=t=>{
+    if(stop) return res(false);
+    const k=Math.min(1,(t-t0)/ms);
+    const e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    scrollTo(0,y0+d*e);
+    k<1?requestAnimationFrame(step):res(true);
+  };
+  requestAnimationFrame(step);
+})}
+function introOpen(sec){
+  if(!sec||!sec.classList.contains('collapsed')) return;
+  const h=sec.querySelector('.h2row[data-acc]');
+  const body=sec.querySelector('.sec-body');
+  if(REDUCED||!body){
+    sec.classList.remove('collapsed');
+    if(h)h.setAttribute('aria-expanded','true');
+    return;
+  }
+  body.style.overflow='hidden';
+  body.style.maxHeight='0px';
+  body.style.transition='max-height .85s cubic-bezier(.22,1,.36,1)';
+  sec.classList.remove('collapsed');
+  if(h)h.setAttribute('aria-expanded','true');
+  requestAnimationFrame(()=>{body.style.maxHeight=body.scrollHeight+'px'});
+  let done=false;
+  const fin=()=>{ if(done)return; done=true;
+    body.style.maxHeight='';body.style.overflow='';body.style.transition='';
+    body.removeEventListener('transitionend',te); };
+  const te=e=>{ if(e.target===body)fin(); };
+  body.addEventListener('transitionend',te);
+  setTimeout(fin,1000);
+}
+async function runIntro(){
+  introBusy=true;
+  try{
+    const head=document.getElementById('menuHead2');
+    const sec=document.getElementById('sec-activities');
+    if(!head||!sec) return;
+    /* only glide when the menu is still below the fold — never yank upward */
+    if(head.getBoundingClientRect().top>120){
+      if(document.documentElement.classList.contains('autofit')){
+        /* embedded: the parent page owns the scroll */
+        head.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});
+        await new Promise(r=>setTimeout(r,REDUCED?0:700));
+      } else {
+        await slowScrollTo(head.getBoundingClientRect().top+scrollY-14,1200);
+      }
+    }
+    introOpen(sec);
+  } finally { introBusy=false; }
+}
+
 document.querySelectorAll('.h2row[data-acc]').forEach(h=>{
   const sec=h.closest('section');
   const body=sec.querySelector('.sec-body');
@@ -1710,6 +1781,7 @@ function applyLoadedState(st){
   /* a loaded package arrives frozen — unlock a section to change it */
   state.locks=LOCK_ALL();
   update(true);
+  introSync();
 }
 async function loadSlots(){
   mySlots={}; adminConfigs=null; editingSlot=null;
