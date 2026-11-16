@@ -1485,6 +1485,9 @@ document.querySelectorAll('.h2row[data-acc]').forEach(h=>{
       requestAnimationFrame(()=>{body.style.maxHeight='0px'});
       settle(()=>sec.classList.add('collapsed'));
       h.setAttribute('aria-expanded','false');
+    } else if(sec.id==='sec-activities'){
+      /* the big menu always unfurls with the slow intro recipe */
+      introOpen(sec);
     } else {
       body.style.overflow='hidden';
       body.style.maxHeight='0px';
