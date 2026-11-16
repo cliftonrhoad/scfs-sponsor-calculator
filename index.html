@@ -259,6 +259,7 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .cat-chip{font-family:var(--display);font-size:12px;text-transform:uppercase;letter-spacing:.05em;
   border:1px solid var(--ink-faint);color:var(--ink);background:transparent;border-radius:999px;
   padding:15px 13px;cursor:pointer;line-height:1.2;display:inline-flex;align-items:center;gap:6px}
+.cat-row .cat-chip{flex:1 1 0;justify-content:center;font-size:13px}
 .cat-chip svg{flex:none}
 .cat-chip:hover{border-color:var(--ink)}
 .cat-chip.active{background:var(--ink);color:var(--panel);border-color:var(--ink)}
@@ -327,6 +328,8 @@ main .saved-panel{background:none;border:none;border-radius:0;padding:0;margin:1
   main .saved-panel{width:100%}
 }
 
+.callout-tight{margin:28px 0 0}
+
 /* ---------- numbered menu heads ---------- */
 .menu-head{text-align:center;margin:96px 0 28px}
 .menu-head.first{margin-top:34px}
@@ -345,6 +348,11 @@ main .saved-panel{background:none;border:none;border-radius:0;padding:0;margin:1
 /* ---------- dim states ---------- */
 .custom-card{opacity:.35;transition:opacity .15s}
 .custom-card:hover,.custom-card:focus-within,.custom-card.active{opacity:1}
+.hero-card{transition:opacity .15s}
+.tier-hero:has(.custom-card.active) > .hero-card:not(.custom-card),
+.tier-hero:has(.custom-card:focus-within) > .hero-card:not(.custom-card){opacity:.35}
+.tier-hero:has(.custom-card.active) > .hero-card:not(.custom-card):hover,
+.tier-hero:has(.custom-card:focus-within) > .hero-card:not(.custom-card):hover{opacity:1}
 section.sec-dim > .h2row h2{opacity:.35;transition:opacity .15s}
 @media(prefers-reduced-motion:reduce){.custom-card,section.sec-dim > .h2row h2{transition:none}}
 
@@ -478,7 +486,7 @@ section.collapsed{cursor:pointer;padding-bottom:6px}
   .custom-card input{width:52px;font-size:14px}
   .custom-card input::placeholder{font-size:14px}
   .cat-chip .cat-txt{display:none}
-  .cat-chip{padding:7px 10px}
+  .cat-row .cat-chip{padding:7px 10px;flex:0 1 auto;font-size:12px}
   .excl-label{font-size:14px}
   .bar-cat-pop .cat-chip .cat-txt{display:inline}
   .h2row[data-acc]{grid-template-columns:minmax(0,1fr) auto auto auto auto;gap:7px}
@@ -605,8 +613,6 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 </header>
 
 <main>
-  <div class="callout">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
-
   <div class="menu-head first">
     <span class="mh-num">1.</span>
     <div class="mh-title">Set a Budget &amp; Select your Category</div>
@@ -614,6 +620,8 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </div>
   <div class="tier-hero" id="tierHero"></div>
   <div class="cat-row" id="catRow" role="group" aria-label="Sponsor category and budget"></div>
+
+  <div class="callout callout-tight">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
 
   <div class="menu-head">
     <span class="mh-num">2.</span>
@@ -682,6 +690,8 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
     </div>
   </section>
 
+  <div class="callout">We can also distribute product or onboard writers with discount codes or free trials; we're happy to facilitate giveaways or contests to increase engagement — or otherwise drive brand awareness for our partners.</div>
+
   <div class="menu-head">
     <span class="mh-num">3.</span>
     <div class="mh-title">Save Package &amp; View Agreement</div>
@@ -698,7 +708,6 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
     <div class="slot-box" id="slotBox"></div>
   </div>
 
-  <div class="callout">We can also distribute product or onboard writers with discount codes or free trials; we're happy to facilitate giveaways or contests to increase engagement — or otherwise drive brand awareness for our partners.</div>
 </main>
 
 
@@ -882,7 +891,7 @@ const allRows = L => RIGHTS_MATRIX.map(()=>L);
 /* ================= STATE ================= */
 const LS_ST='scfs-calc-state-v13';
 let config = null; /* assigned by boot() from the cloud */
-let state  = load(LS_ST)  || BLANK_STATE();
+let state  = BLANK_STATE(); /* always boot empty; saved slots + share links still load */
 
 function load(k){ try{const r=localStorage.getItem(k);return r?JSON.parse(r):null}catch(e){return null} }
 function persist(){ try{localStorage.setItem(LS_ST,JSON.stringify(state))}catch(e){} }
@@ -1188,8 +1197,8 @@ function renderHero(){
   const t=state.target, cb=state.customBudget;
   $('tierHero').innerHTML =
     `<div class="hero-card custom-card ${cb?'active':''}" id="customCard" role="group" aria-label="Custom budget">
-      <span class="hc-eyebrow">Patron</span>
-      <span class="hc-name">Custom</span>
+      <span class="hc-eyebrow">Custom</span>
+      <span class="hc-name">Budget</span>
       <span class="hc-price"><span class="bf-dollar">$</span><input id="budgetInput" type="number" inputmode="numeric" min="0" placeholder="3,000+" value="${cb||''}" aria-label="Custom budget amount, starts at $3,000" title="Custom budgets start at $3,000 — one scholarship"><span class="hc-season"> / season</span></span>
     </div>`
     + config.tiers.map((tier,i)=>
@@ -1218,26 +1227,22 @@ function wireCatChips(el){
   el.querySelectorAll('.cat-chip').forEach(b=>b.onclick=()=>pickCategory(b.dataset.cat));
 }
 function renderCats(){
-  $('catRow').innerHTML =
-    catChipsHTML()
-    + `<button class="gbtn-icon" id="catReset" title="Deselect preset and revert to the selected tier" aria-label="Deselect preset">${REFRESH_SVG}</button>`
-    + `<span class="excl-toggle"><span class="excl-label">category<br>exclusivity</span><button class="switch" id="exclChip" aria-pressed="${state.exclusivity}" aria-label="Category exclusivity${showPrices()?`, +${config.exclusivityPct}% of footage`:``}"></button></span>`;
+  $('catRow').innerHTML = catChipsHTML();
   wireCatChips($('catRow'));
-  $('catReset').onclick=()=>{
-    state.category=null;
-    if(activeTarget()) rebuildToTarget(); else update();
-  };
-  $('exclChip').onclick=()=>{
-    state.exclusivity=!state.exclusivity;
-    state.exclUser=state.exclusivity;
-    update()};
 }
 function renderRiders(){
   $('riderRows').innerHTML =
     `<div class="toggle-row"><span class="toggle-name"><b>Full Buyout</b> — copyright assignment; every row above included except attribution</span>
       <span class="toggle-price rider-price">${showPrices()?`<span class="rp-a">${config.buyoutMult}× footage</span><span class="rp-dot"> · </span><span class="rp-b">${fmt(config.buyoutFloor)} floor</span>`:''}</span>
-      <button class="switch" id="buyoutSwitch" aria-pressed="${state.buyout}" aria-label="Full buyout"></button></div>`;
+      <button class="switch" id="buyoutSwitch" aria-pressed="${state.buyout}" aria-label="Full buyout"></button></div>`
+    + `<div class="toggle-row"><span class="toggle-name"><b>Category Exclusivity</b> — no competing brands in your category at camp for the 2027 season</span>
+      <span class="toggle-price rider-price">${showPrices()?`+${config.exclusivityPct}% of footage`:''}</span>
+      <button class="switch" id="exclChip" aria-pressed="${state.exclusivity}" aria-label="Category exclusivity${showPrices()?`, +${config.exclusivityPct}% of footage`:``}"></button></div>`;
   $('buyoutSwitch').onclick=()=>{state.buyout=!state.buyout;update()};
+  $('exclChip').onclick=()=>{
+    state.exclusivity=!state.exclusivity;
+    state.exclUser=state.exclusivity;
+    update()};
 }
 function rightsLabel(er){
   if(state.buyout) return 'Full Buyout';
