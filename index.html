@@ -1437,11 +1437,13 @@ async function runIntro(){
       if(document.documentElement.classList.contains('autofit')){
         /* embedded: the parent page owns the scroll */
         head.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});
-        await new Promise(r=>setTimeout(r,REDUCED?0:700));
+        await new Promise(r=>setTimeout(r,REDUCED?0:1000));
       } else {
         await slowScrollTo(head.getBoundingClientRect().top+scrollY-14,1200);
       }
     }
+    /* arrive, breathe, then unfurl */
+    await new Promise(r=>setTimeout(r,REDUCED?0:550));
     introOpen(sec);
   } finally { introBusy=false; }
 }
