@@ -1422,14 +1422,15 @@ function introOpen(sec){
   body.style.transition='max-height 1.3s ease';
   sec.classList.remove('collapsed');
   if(h)h.setAttribute('aria-expanded','true');
-  requestAnimationFrame(()=>{body.style.maxHeight=body.scrollHeight+'px'});
   let done=false;
   const fin=()=>{ if(done)return; done=true;
     body.style.maxHeight='';body.style.overflow='';body.style.transition='';
     body.removeEventListener('transitionend',te); };
   const te=e=>{ if(e.target===body)fin(); };
   body.addEventListener('transitionend',te);
-  setTimeout(fin,1500);
+  /* arm the fallback from the frame the transition actually starts, so a
+     delayed first frame can never make it cut the animation mid-flight */
+  requestAnimationFrame(()=>{body.style.maxHeight=body.scrollHeight+'px'; setTimeout(fin,1600)});
 }
 async function runIntro(){
   introBusy=true;
