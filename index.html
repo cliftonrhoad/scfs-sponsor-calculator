@@ -162,26 +162,6 @@ h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0;
   font-weight:400;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);
   vertical-align:bottom;padding:10px 6px 4px}
 
-/* ---------- print one-pager (Document surface mode) ---------- */
-#printSheet{display:none}
-@media print{
-  body{background:#fff}
-  body::before,.wrap,.drawer,.drawer-veil,.deal-bar{display:none !important}
-  #printSheet{display:block;color:#000;font-family:var(--data);font-size:12px;padding:0}
-  #printSheet .p-brand{font-family:var(--display);color:#000;font-size:14px;text-transform:uppercase;letter-spacing:.05em}
-  #printSheet h1{font-family:var(--display);font-weight:400;font-size:30px;margin:2px 0 0;text-transform:uppercase;color:#000}
-  #printSheet .p-sub{font-family:var(--hand);font-size:18px;color:#000;margin:0 0 14px}
-  #printSheet h2{font-family:var(--display);font-weight:400;font-size:16px;text-transform:uppercase;
-    color:#000;border-bottom:2px solid #000;padding-bottom:2px;margin:16px 0 4px}
-  #printSheet p{margin:4px 0 6px}
-  #printSheet ul{margin:4px 0 6px;padding-left:20px}
-  #printSheet table{width:100%;border-collapse:collapse}
-  #printSheet td,#printSheet th{text-align:left;padding:3px 6px;border-bottom:1px solid #bbb;font-variant-numeric:tabular-nums}
-  #printSheet td:last-child,#printSheet th:last-child{text-align:right}
-  #printSheet .p-total{font-family:var(--display);font-size:26px;text-align:right;margin-top:14px}
-  #printSheet .p-note{font-family:var(--hand);font-size:16px;color:#000;margin-top:14px}
-}
-
 /* ---------- summary ---------- */
 .side-col{position:sticky;top:16px;display:flex;flex-direction:column;gap:18px}
 .summary{background:var(--panel);border:1px dashed var(--ink-faint);border-radius:6px;padding:18px}
@@ -320,12 +300,15 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 
 /* ---------- section 3: actions ---------- */
 .action-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.action-row .btn{margin:0}
+.action-row .btn{margin:0;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.action-row .btn svg{flex:none}
 .action-row #rateBtn{grid-column:1/-1}
-main .saved-panel{background:none;border:none;border-radius:0;padding:0;margin:18px auto 0;width:calc((100% - 24px)/3)}
+main .saved-panel{background:none;border:none;border-radius:0;padding:0;margin:12px auto 0;width:100%}
+.slot-box{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.slot-box .slot-title,.slot-box .slot-sub,.slot-box .slot-list-row{grid-column:1/-1}
 @media(max-width:640px){
   .action-row{grid-template-columns:1fr}
-  main .saved-panel{width:100%}
+  .slot-box{grid-template-columns:1fr}
 }
 
 .nil-note{margin:28px auto 0;text-align:center;font-family:var(--hand);font-size:19px;line-height:1.3;color:var(--ink);max-width:92ch}
@@ -542,7 +525,7 @@ body:not(.admin) #rateBtn{display:none}
 body:not(.admin) .th-price,body:not(.admin) .toggle-price,
 body:not(.admin) .w-chip,body:not(.admin) .rider-price{display:none}
 body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:minmax(0,1fr) 96px}
-.auth-box,.slot-box{border-top:1px solid var(--ink-faint);margin-top:12px;padding-top:12px}
+.auth-box,.slot-box{margin-top:12px}
 .slot-box:empty,.auth-box:empty{display:none}
 .auth-line{font-size:12px;color:var(--white-dim);display:flex;justify-content:space-between;
   gap:8px;align-items:center;flex-wrap:wrap}
@@ -555,7 +538,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
 .auth-err{font-size:11.5px;color:#ffb4a0;margin-top:4px}
 .slot-title{font-family:var(--display);font-size:16px;text-transform:uppercase;letter-spacing:.03em}
 .slot-sub{font-family:var(--hand);font-size:15px;color:var(--ink);margin:2px 0 6px}
-.slot-row{display:flex;align-items:stretch;gap:6px;margin:6px 0}
+.slot-row{display:flex;align-items:stretch;gap:6px;margin:0;min-width:0}
 .slot-save{flex:none;width:44px;display:inline-flex;align-items:center;justify-content:center;
   background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0}
 .slot-save:hover{color:var(--ink)}
@@ -703,9 +686,9 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
     <div class="mh-sub">View deliverables and easily save packages and send proposals</div>
   </div>
   <div class="action-row">
-    <button class="btn wide primary" id="saveBtn">Save the package</button>
-    <button class="btn wide btn-quiet" id="printBtn">Print the one-pager</button>
-    <button class="btn wide" id="agreementBtn">View the Agreement</button>
+    <button class="btn wide primary" id="saveBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save the Package</button>
+    <button class="btn wide" id="agreementBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>View the Agreement</button>
+    <button class="btn wide btn-quiet" id="authBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/></svg>Sign In / Create Account</button>
     <button class="btn wide primary" id="rateBtn">Edit Rate Card</button>
   </div>
   <div class="summary saved-panel">
@@ -728,7 +711,6 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   </div>
 </div>
 
-<div id="printSheet" aria-hidden="true"></div>
 
 <div class="modal-veil" id="modalVeil"><div class="modal" id="modalBox"></div></div>
 
@@ -1547,87 +1529,6 @@ document.querySelectorAll('.sec-refresh').forEach(b=>{
   b.onclick=e=>{e.stopPropagation();sectionReset(b.dataset.refresh)};
 });
 
-/* Sponsor-facing one-pager: everything itemized, but the season total is the
-   ONLY dollar figure — no unit prices, multipliers, or subtotals on the page. */
-function buildPrintSheet(){
-  const c=compute();
-  const tiers=[...config.tiers].sort((a,b)=>a.price-b.price);
-  const fit=tiers.find(t=>c.total<=t.price);
-  const catName=state.category?(CATS.find(x=>x.key===state.category)?.name||''):null;
-  const d=new Date();
-  const actRows=[];
-  ACTIVITIES.forEach((a,i)=>{
-    const q=state.acts[i]; if(!q.some(Boolean)) return;
-    const parts=[];
-    const n=(v,word)=>v+' '+word+(v>1?'s':'');
-    if(q[0])parts.push(n(q[0],'carousel dump'));
-    if(q[1])parts.push(n(q[1],'edited photo select'));
-    if(q[2])parts.push(n(q[2],'edited video select'));
-    actRows.push(`<tr><td>${a[0].replace(/\s*\(\d+\)$/,'')}</td><td>${parts.join(' · ')}</td></tr>`);
-  });
-  const fbRows=FEEDBACK.filter(([k])=>state.feedback[k]>0).map(([k,l])=>
-    `<tr><td>${l}</td><td>× ${state.feedback[k]}</td></tr>`).join('');
-  const spotRows=SPOTS.filter((s,i)=>state.spots[i]).map(s=>
-    `<tr><td>${s}</td><td>Presenting Sponsor</td></tr>`).join('');
-  const sch=state.scholarships;
-  const perks=['The Name — "The [Brand] Songwriter Scholarship"','The Announcement Post',
-    'The Opening Ceremonies Verbal Thanks',"Inclusion in the season's Patronage Recap — a voiceover-driven short celebrating the brands behind the writing"];
-  if(sch>=2)perks.push('The Thank-You Email Blast',"Name and logo in the Patronage Recap's credits",
-    "Tagged and mentioned in the Recap's captions across IG, TikTok, YouTube, and LinkedIn");
-  $('printSheet').innerHTML=`
-    <div class="p-brand">Summer Camp for Songwriters — 2027 Season</div>
-    <h1>Sponsorship Proposal</h1>
-    <p class="p-sub">${fit?fit.name+' package':'Custom package'}${catName?' · '+catName:''} · prepared ${d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>
-    ${actRows.length?`<h2>Activities Footage</h2>
-      <p>Captured across four week-long camps on Lake Burton — every item NIL cleared.</p>
-      <table>${actRows.join('')}</table>`:''}
-    ${spotRows?`<h2>Scripted Spots</h2>
-      <p>Presenting sponsorship of a Summer Camp mini-doc.</p><table>${spotRows}</table>`:''}
-    ${fbRows?`<h2>Captive Audience Feedback</h2>
-      <p>Live activations with a room full of professional songwriters, across four weeks of camp.</p>
-      <table>${fbRows}</table>`:''}
-    ${sch?`<h2>Patron Scholarship Package — ${sch>=2?'Two or More Scholarships':'One Scholarship'}</h2>
-      <p>${sch} named scholarship${sch>1?'s':''} — each one sends a songwriter to camp for a week. As a Patron you receive:</p>
-      <ul>${perks.map(x=>'<li>'+x+'</li>').join('')}</ul>`:''}
-    <h2>Usage Rights — ${rightsLabel(c.er)}</h2>
-    ${state.buyout
-      ? `<p>Full copyright assignment — the delivered footage is owned outright. Attribution: <b>${RIGHTS_MATRIX[ATTR][c.er.rows[ATTR]+1]}</b>. Summer Camp trademarks and the writers' NIL/likeness rights remain licensed, not sold.</p>`
-      : `<table>${RIGHTS_MATRIX.map((r,ri)=>`<tr><td>${r[0]}</td><td>${r[c.er.rows[ri]+1]}</td></tr>`).join('')}</table>`}
-    ${state.exclusivity?`<h2>Category Exclusivity</h2>
-      <p>No competing brands in your category at camp for the 2027 season.</p>`:''}
-    <div class="p-total">Season Total — ${fmt(c.total)}</div>
-    <p class="p-note">Every item comes with logo treatment on the website and a healthy portion of tagging on social media. Quantities and rights are negotiable — this sheet is a starting point, not a contract.</p>`;
-}
-/* window.print() is silently blocked inside the artifact viewer's sandboxed
-   iframe — there, download a standalone document-mode file instead */
-function printOnePager(){
-  buildPrintSheet();
-  if(window.top===window.self){ window.print(); return; }
-  const styleText=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
-  const fontFaces=(styleText.match(/@font-face\{[^}]*\}/g)||[]).join('\n');
-  const css=fontFaces+`
-    body{font-family:ui-sans-serif,-apple-system,'Helvetica Neue',Arial,sans-serif;color:#000;
-      background:#fff;max-width:680px;margin:2rem auto;padding:0 1rem;font-size:13px;line-height:1.5}
-    .p-brand{font-family:'Germania One',sans-serif;color:#000;font-size:14px;text-transform:uppercase;letter-spacing:.05em}
-    h1{font-family:'Germania One',sans-serif;font-weight:400;font-size:30px;margin:2px 0 0;text-transform:uppercase}
-    .p-sub{font-family:'Reenie Beanie',cursive;font-size:18px;color:#000;margin:0 0 14px}
-    h2{font-family:'Germania One',sans-serif;font-weight:400;font-size:16px;text-transform:uppercase;
-      color:#000;border-bottom:2px solid #000;padding-bottom:2px;margin:16px 0 4px}
-    p{margin:4px 0 6px} ul{margin:4px 0 6px;padding-left:20px}
-    table{width:100%;border-collapse:collapse}
-    td,th{text-align:left;padding:3px 6px;border-bottom:1px solid #bbb;font-variant-numeric:tabular-nums}
-    td:last-child,th:last-child{text-align:right}
-    .p-total{font-family:'Germania One',sans-serif;font-size:26px;text-align:right;margin-top:14px}
-    .p-note{font-family:'Reenie Beanie',cursive;font-size:16px;color:#000;margin-top:14px}`;
-  const html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SCFS Sponsorship One-Pager</title><style>'+css+'</style></head><body>'+$('printSheet').innerHTML+'</body></html>';
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='SCFS-sponsorship-one-pager.html';
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-}
-$('printBtn').onclick=printOnePager;
 $('agreementBtn').onclick=()=>openAgreement();
 $('saveBtn').onclick=()=>saveSmart();
 $('barClear').onclick=()=>{state=BLANK_STATE();update(true)};
@@ -1663,19 +1564,16 @@ if(!state.actLocks)state.actLocks={Music:false,Meals:false,Camp:false};
 function esc(s){return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 let mySlots={}, adminConfigs=null, authMode='idle', authEmail='', authBusy=false, authErr='', editingSlot=null;
 
+const AUTH_ICON='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/></svg>';
 function renderAuth(){
   const box=$('authBox'); if(!box) return;
-  if(session){
-    box.innerHTML=`<div class="auth-line"><span>Signed in as <b>${esc(session.user.email)}</b>${isAdmin?' <span class="auth-badge">Admin</span>':''}</span>
-      <button class="btn btn-quiet" id="signOutBtn" style="width:auto;margin:0;padding:4px 10px">Sign out</button></div>`;
-    $('signOutBtn').onclick=()=>sb.auth.signOut();
-    return;
+  const btn=$('authBtn');
+  if(btn){
+    btn.innerHTML=AUTH_ICON+(session?'Sign Out':'Sign In / Create Account');
+    btn.onclick=session?()=>sb.auth.signOut():()=>{authMode='email';authErr='';renderAuth()};
   }
-  if(authMode==='idle'){
-    box.innerHTML=`<button class="btn wide" id="signInBtn">Sign in / Create account</button>
-    `;
-    $('signInBtn').onclick=()=>{authMode='email';authErr='';renderAuth()};
-  } else if(authMode==='email'){
+  if(session||authMode==='idle'){ box.innerHTML=''; return; }
+  if(authMode==='email'){
     box.innerHTML=`<div class="auth-line">Your email — new emails create an account</div>
       <input class="auth-input" id="authEmailInp" type="email" autocomplete="email" placeholder="you@brand.com" value="${esc(authEmail)}">
       ${authErr?`<div class="auth-err">${esc(authErr)}</div>`:''}
@@ -1795,7 +1693,7 @@ const PLANE_SVG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" str
 function renderSlots(){
   const box=$('slotBox'); if(!box) return;
   if(!session){box.innerHTML='';return}
-  let h='<div class="slot-title">Saved Packages</div><div class="slot-sub">the disk saves your current board — tap a package to load it</div>';
+  let h='';
   for(let i=1;i<=6;i++){
     const r=mySlots[i];
     let card;
@@ -1943,8 +1841,7 @@ async function saveToSlot(slot){
 
 /* ================= AGREEMENT GENERATOR ================= */
 /* A conversational draft agreement built from the live board. Professional
-   document styling on purpose — this is the un-branded artifact. Every
-   generated draft carries a review-by-counsel disclaimer. */
+   document styling on purpose — this is the un-branded artifact. */
 const AGR_FOOTAGE_EXPLAIN={
   cam:['iPhone carousel dumps','batches of twenty raw clips straight off our iPhones — each dump is a carousel-ready set of real-time, feels-like-you’re-there coverage, delivered exactly as shot: no color work, no trimming. Perfect for stories, community posts, and anything that benefits from being unpolished'],
   pho:['edited photo selects','professional photographs from our shooters, hand-picked from the season’s full take and individually edited before delivery'],
@@ -2062,7 +1959,6 @@ td:last-child,th:last-child{text-align:right;white-space:nowrap}
 .sig{display:flex;gap:40px;margin-top:30px}.sig>div{flex:1}
 .sigline{border-bottom:1px solid #333;height:34px;margin-bottom:5px}
 .siglabel{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:#555}
-.disclaimer{margin-top:36px;padding:12px 14px;border:1px solid #bbb;background:#faf9f6;font-size:11.5px;color:#444}
 @media print{.toolbar{display:none}body{background:#fff}.page{padding:0;max-width:none;min-height:0}@page{margin:0.9in}}
 </style>
 </head>
@@ -2113,7 +2009,6 @@ ${relLine}
 
 <h2>Exhibit A — the package</h2>
 ${buildExhibitRows(c)}
-<div class="disclaimer"><b>A note on this draft.</b> It was generated from the 2027 Sponsor Menu Calculator on ${today} to move a real conversation forward, and it means what it says — but it isn’t signed legal advice. Both sides should have counsel look it over before signing. The blanks are intentional: they’re the parts we fill in together.</div>
 </div>
 <script>window.addEventListener('load',function(){setTimeout(function(){try{window.print()}catch(e){}},700)});<\/script>
 </body>
