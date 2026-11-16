@@ -1679,7 +1679,7 @@ function renderAuth(){
     box.innerHTML=`<div class="auth-line">Your email — new emails create an account</div>
       <input class="auth-input" id="authEmailInp" type="email" autocomplete="email" placeholder="you@brand.com" value="${esc(authEmail)}">
       ${authErr?`<div class="auth-err">${esc(authErr)}</div>`:''}
-      <button class="btn wide primary" id="sendCode" ${authBusy?'disabled':''}>${authBusy?'Sending…':'Email me a 6-digit code'}</button>
+      <button class="btn wide primary" id="sendCode" ${authBusy?'disabled':''}>${authBusy?'Sending…':'Email me a sign-in link'}</button>
       <button class="btn wide btn-quiet" id="authCancel">Cancel</button>`;
     const inp=$('authEmailInp');
     inp.onkeydown=e=>{if(e.key==='Enter')$('sendCode').click()};
@@ -1687,30 +1687,16 @@ function renderAuth(){
       const email=inp.value.trim();
       if(!/^\S+@\S+\.\S+$/.test(email)){authErr='That email doesn\u2019t look right.';renderAuth();return}
       authEmail=email; authBusy=true; authErr=''; renderAuth();
-      const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+      const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true,emailRedirectTo:signinRedirect()}});
       authBusy=false;
       if(error) authErr=error.message; else authMode='code';
       renderAuth();
     };
     $('authCancel').onclick=()=>{authMode='idle';renderAuth()};
   } else {
-    box.innerHTML=`<div class="auth-line">We emailed a 6-digit code to <b>${esc(authEmail)}</b></div>
-      <input class="auth-input" id="authCodeInp" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
-      ${authErr?`<div class="auth-err">${esc(authErr)}</div>`:''}
-      <button class="btn wide primary" id="verifyCode" ${authBusy?'disabled':''}>${authBusy?'Checking…':'Verify code'}</button>
+    box.innerHTML=`<div class="auth-line">We emailed a sign-in link to <b>${esc(authEmail)}</b></div>
+      <div class="auth-line" style="opacity:.75">Open it anywhere — your package rides along. Opened in this browser, this page signs in on its own</div>
       <button class="btn wide btn-quiet" id="authBack">Use a different email</button>`;
-    const inp=$('authCodeInp');
-    inp.focus();
-    inp.onkeydown=e=>{if(e.key==='Enter')$('verifyCode').click()};
-    $('verifyCode').onclick=async()=>{
-      const code=inp.value.trim();
-      if(!/^\d{6}$/.test(code)){authErr='Enter the 6-digit code from the email.';renderAuth();return}
-      authBusy=true; authErr=''; renderAuth();
-      const {error}=await sb.auth.verifyOtp({email:authEmail,token:code,type:'email'});
-      authBusy=false;
-      if(error){authErr=error.message;renderAuth()}
-      else authMode='idle'; /* onAuthStateChange takes it from here */
-    };
     $('authBack').onclick=()=>{authMode='email';authErr='';renderAuth()};
   }
 }
@@ -1861,13 +1847,13 @@ async function renameSlot(slot){
   }
 }
 function modalSignIn(){ return new Promise(res=>{
-  let email='';
-  const bail=()=>{closeModal();res(false)};
+  let email='', unsub=null;
+  const bail=()=>{if(unsub)unsub();closeModal();res(false)};
   const step1=()=>{ openModal(`<h3>Sign in to save</h3><div class="m-sub">entering your email creates your account automatically</div>
     <input class="auth-input" id="mEmail" type="email" autocomplete="email" placeholder="you@brand.com" value="${esc(email)}">
     <div class="auth-err" id="mErr" style="display:none"></div>
     <div class="m-btns"><button class="btn btn-quiet" id="mCancel">Cancel</button>
-    <button class="btn primary" id="mOk">Email me a code</button></div>`);
+    <button class="btn primary" id="mOk">Email me a sign-in link</button></div>`);
     const inp=$('mEmail'); inp.focus();
     $('mCancel').onclick=bail;
     $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))bail()};
@@ -1877,30 +1863,17 @@ function modalSignIn(){ return new Promise(res=>{
       const err=$('mErr');
       if(!/^\S+@\S+\.\S+$/.test(email)){err.textContent='That email doesn\u2019t look right.';err.style.display='block';return}
       $('mOk').disabled=true;$('mOk').textContent='Sending\u2026';
-      const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
-      if(error){err.textContent=error.message;err.style.display='block';$('mOk').disabled=false;$('mOk').textContent='Email me a code';return}
+      const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true,emailRedirectTo:signinRedirect()}});
+      if(error){err.textContent=error.message;err.style.display='block';$('mOk').disabled=false;$('mOk').textContent='Email me a sign-in link';return}
       step2();
     };
   };
-  const step2=()=>{ openModal(`<h3>Enter your code</h3><div class="m-sub">we emailed a 6-digit code to ${esc(email)}</div>
-    <input class="auth-input" id="mCode" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
-    <div class="auth-err" id="mErr" style="display:none"></div>
-    <div class="m-btns"><button class="btn btn-quiet" id="mBack">Different email</button>
-    <button class="btn primary" id="mOk">Verify</button></div>`);
-    const inp=$('mCode'); inp.focus();
-    $('mBack').onclick=step1;
+  const step2=()=>{ openModal(`<h3>Check your email</h3><div class="m-sub">we sent a sign-in link to ${esc(email)}</div>
+    <div class="m-sub" style="margin-top:8px">Open it anywhere — your package rides along. Opened in this browser, this page signs in on its own</div>
+    <div class="m-btns"><button class="btn btn-quiet" id="mBack">Different email</button></div>`);
+    unsub=watchSignIn(async()=>{ unsub=null; await refreshRole(); await loadSlots(); closeModal(); res(true); });
+    $('mBack').onclick=()=>{if(unsub)unsub();unsub=null;step1()};
     $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))bail()};
-    inp.onkeydown=e=>{if(e.key==='Enter')$('mOk').click(); if(e.key==='Escape')bail()};
-    $('mOk').onclick=async()=>{
-      const code=inp.value.trim();
-      const err=$('mErr');
-      if(!/^\d{6}$/.test(code)){err.textContent='Enter the 6-digit code from the email.';err.style.display='block';return}
-      $('mOk').disabled=true;$('mOk').textContent='Checking\u2026';
-      const {error}=await sb.auth.verifyOtp({email,token:code,type:'email'});
-      if(error){err.textContent=error.message;err.style.display='block';$('mOk').disabled=false;$('mOk').textContent='Verify';return}
-      await refreshRole(); await loadSlots();
-      closeModal(); res(true);
-    };
   };
   step1();
 });}
@@ -2217,6 +2190,41 @@ async function sharePackage(slot){
   };
   $('modalVeil').onclick=e=>{if(e.target===$('modalVeil'))closeModal()};
 }
+/* ---------- sign-in links carry the in-progress package ---------- */
+function packState(){try{
+  const b=new TextEncoder().encode(JSON.stringify(state));
+  let t='';b.forEach(c=>t+=String.fromCharCode(c));
+  return btoa(t).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}catch(e){return ''}}
+function unpackState(t){try{
+  const r=atob(t.replace(/-/g,'+').replace(/_/g,'/'));
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(r,c=>c.charCodeAt(0))));
+}catch(e){return null}}
+function signinRedirect(){
+  const base=location.origin+location.pathname;
+  const started=state.target!==null||!!state.customBudget||!!state.category;
+  const t=started?packState():'';
+  return t?base+'?pkg='+t:base;
+}
+function maybeResumePkg(){
+  const m=location.search.match(/[?&]pkg=([A-Za-z0-9_-]+)/);
+  if(!m) return false;
+  history.replaceState(null,'',location.pathname+location.hash);
+  const st=unpackState(m[1]);
+  if(!st) return false;
+  applyLoadedState(st);
+  /* their own in-progress work arrives unlocked, unlike a prepared share */
+  state.locks=BLANK_STATE().locks;
+  update(true);
+  return true;
+}
+function watchSignIn(fn){
+  let fired=false;
+  const {data}=sb.auth.onAuthStateChange((_e,sess)=>{ if(sess&&!fired){fired=true;off();fn();} });
+  const off=()=>{try{data.subscription.unsubscribe()}catch(e){}};
+  return off;
+}
+
 async function maybeLoadShared(){
   const m=location.search.match(/[?&]p=([a-z0-9]{6,20})/i);
   if(!m) return;
@@ -2256,7 +2264,7 @@ async function boot(){
   $('bootVeil').remove();
   renderLocks();
   update(true);
-  maybeLoadShared();
+  if(!maybeResumePkg()) maybeLoadShared();
   sb.auth.onAuthStateChange((_evt,s)=>{ session=s; refreshRole(); });
 }
 boot();
