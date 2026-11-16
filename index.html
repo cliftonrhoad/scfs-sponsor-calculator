@@ -328,7 +328,12 @@ main .saved-panel{background:none;border:none;border-radius:0;padding:0;margin:1
   main .saved-panel{width:100%}
 }
 
-.callout-tight{margin:28px 0 0}
+.nil-note{margin:28px auto 0;text-align:center;font-family:var(--hand);font-size:19px;line-height:1.3;color:var(--ink);max-width:56ch}
+.partner-note{margin:18px auto 0;text-align:center;font-size:12.5px;line-height:1.55;color:var(--white-dim);max-width:62ch}
+@media(max-width:480px){
+  .nil-note{font-size:15px}
+  .partner-note{font-size:12px}
+}
 
 /* ---------- numbered menu heads ---------- */
 .menu-head{text-align:center;margin:96px 0 28px}
@@ -621,7 +626,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
   <div class="tier-hero" id="tierHero"></div>
   <div class="cat-row" id="catRow" role="group" aria-label="Sponsor category and budget"></div>
 
-  <div class="callout callout-tight">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</div>
+  <p class="nil-note">All menu items in each package are <i>NIL cleared</i>, and come with logo treatment on the website, plus a healthy portion of tagging on social media.</p>
 
   <div class="menu-head">
     <span class="mh-num">2.</span>
@@ -690,7 +695,7 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
     </div>
   </section>
 
-  <div class="callout">We can also distribute product or onboard writers with discount codes or free trials; we're happy to facilitate giveaways or contests to increase engagement — or otherwise drive brand awareness for our partners.</div>
+  <p class="partner-note">We can also distribute product or onboard writers with discount codes or free trials; we're happy to facilitate giveaways or contests to increase engagement — or otherwise drive brand awareness for our partners.</p>
 
   <div class="menu-head">
     <span class="mh-num">3.</span>
