@@ -303,6 +303,13 @@ footer{grid-column:1/-1;font-family:var(--hand);font-size:19px;color:var(--ink-d
 .action-row .btn{margin:0;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .action-row .btn svg{flex:none}
 .action-row #rateBtn{grid-column:1/-1}
+/* tier recipe: full text on a quiet outline; filled safety green when on */
+.btn.tiered{background:var(--panel);border-color:var(--ink-faint);color:var(--ink)}
+.btn.tiered:hover{background:var(--panel);border-color:var(--ink)}
+.btn.tiered.on{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+.action-row.bare .btn.tiered{opacity:.35;pointer-events:none}
+.agr-panel{margin:18px auto 0}
+.agr-panel iframe{display:block;width:100%;border:1px solid var(--ink-faint);border-radius:6px;background:#fff;height:320px}
 main .saved-panel{background:none;border:none;border-radius:0;padding:0;margin:12px auto 0;width:100%}
 .slot-box{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
 .slot-box .slot-title,.slot-box .slot-sub,.slot-box .slot-list-row{grid-column:1/-1}
@@ -686,14 +693,17 @@ body:not(.admin) .toggle-row,body:not(.admin) .step-row{grid-template-columns:mi
     <div class="mh-sub">View deliverables and easily save packages and send proposals</div>
   </div>
   <div class="action-row">
-    <button class="btn wide primary" id="saveBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save the Package</button>
-    <button class="btn wide" id="agreementBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>View the Agreement</button>
-    <button class="btn wide btn-quiet" id="authBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/></svg>Sign In / Create Account</button>
+    <button class="btn wide tiered" id="saveBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save the Package</button>
+    <button class="btn wide tiered" id="agreementBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>View the Agreement</button>
+    <button class="btn wide tiered" id="authBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/></svg>Sign In / Create Account</button>
     <button class="btn wide primary" id="rateBtn">Edit Rate Card</button>
   </div>
   <div class="summary saved-panel">
     <div class="auth-box" id="authBox"></div>
     <div class="slot-box" id="slotBox"></div>
+  </div>
+  <div class="agr-panel" id="agrPanel" hidden>
+    <iframe id="agrFrame" title="Sponsorship agreement draft"></iframe>
   </div>
 
 </main>
@@ -1250,6 +1260,10 @@ function renderDims(){
   dim('sec-spots', !state.spots.some(Boolean));
   dim('sec-extras', state.scholarships===0);
   dim('sec-feedback', !FEEDBACK.some(([k])=>state.feedback[k]>0));
+  const any=(c.cam+c.pho+c.vid)>0||state.spots.some(Boolean)||state.scholarships>0
+    ||FEEDBACK.some(([k])=>state.feedback[k]>0)
+    ||state.target!==null||!!state.customBudget||!!state.category;
+  const ar=document.querySelector('.action-row'); if(ar)ar.classList.toggle('bare',!any);
 }
 function renderChips(){
   const c=compute();
@@ -1529,7 +1543,7 @@ document.querySelectorAll('.sec-refresh').forEach(b=>{
   b.onclick=e=>{e.stopPropagation();sectionReset(b.dataset.refresh)};
 });
 
-$('agreementBtn').onclick=()=>openAgreement();
+$('agreementBtn').onclick=()=>{ agrOpen?closeAgreement():openAgreement(); };
 $('saveBtn').onclick=()=>saveSmart();
 $('barClear').onclick=()=>{state=BLANK_STATE();update(true)};
 $('rateBtn').onclick=()=>{if(!isAdmin)return;positionDrawer();$('drawer').classList.add('open');$('veil').classList.add('open')};
@@ -1570,6 +1584,7 @@ function renderAuth(){
   const btn=$('authBtn');
   if(btn){
     btn.innerHTML=AUTH_ICON+(session?'Sign Out':'Sign In / Create Account');
+    btn.classList.toggle('on',!!session);
     btn.onclick=session?()=>sb.auth.signOut():()=>{authMode='email';authErr='';renderAuth()};
   }
   if(session||authMode==='idle'){ box.innerHTML=''; return; }
@@ -2033,6 +2048,8 @@ function buildExhibitRows(c){
   rows+=`<tr class="total-line"><td>Season total</td><td>${fmt(c.total)}</td></tr>`;
   return `<table><tr><th>Deliverable</th><th>Quantity / terms</th></tr>${rows}</table>`;
 }
+let agrOpen=false;
+function syncAgrBtn(){ const b=$('agreementBtn'); if(b)b.classList.toggle('on',agrOpen); }
 function openAgreement(stArg, pkgName){
   let html;
   if(stArg){
@@ -2042,15 +2059,42 @@ function openAgreement(stArg, pkgName){
   } else {
     html=buildAgreementHTML(pkgName||defaultSlotName());
   }
-  const w=window.open('','_blank');
-  if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+  /* inline: the draft prints from its own toolbar, never on load */
+  html=html.replace("window.addEventListener('load',function(){setTimeout(function(){try{window.print()}catch(e){}},700)});","");
+  const panel=$('agrPanel'), fr=$('agrFrame');
+  fr.onload=()=>{
+    try{ fr.style.height=(fr.contentDocument.documentElement.scrollHeight+2)+'px'; }catch(e){}
+    panel.hidden=false;
+    if(!REDUCED){
+      panel.style.overflow='hidden';
+      panel.style.maxHeight='0px';
+      panel.style.transition='max-height 1.3s ease';
+      let done=false;
+      const fin=()=>{ if(done)return; done=true;
+        panel.style.maxHeight='';panel.style.overflow='';panel.style.transition=''; };
+      requestAnimationFrame(()=>{ panel.style.maxHeight=panel.scrollHeight+'px'; setTimeout(fin,1600); });
+    }
+    if(document.documentElement.classList.contains('autofit'))
+      panel.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});
+    else slowScrollTo(panel.getBoundingClientRect().top+scrollY-14,1200);
+  };
+  fr.srcdoc=html;
+  agrOpen=true; syncAgrBtn();
+}
+function closeAgreement(){
+  const panel=$('agrPanel'), fr=$('agrFrame');
+  const fin=()=>{ panel.hidden=true;
+    panel.style.maxHeight='';panel.style.overflow='';panel.style.transition='';
+    fr.removeAttribute('srcdoc'); };
+  if(REDUCED){ fin(); }
   else {
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
-    a.download='SCFS-sponsorship-agreement.html';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    panel.style.overflow='hidden';
+    panel.style.maxHeight=panel.scrollHeight+'px';
+    panel.style.transition='max-height .6s ease';
+    requestAnimationFrame(()=>{panel.style.maxHeight='0px'});
+    setTimeout(fin,700);
   }
+  agrOpen=false; syncAgrBtn();
 }
 const SHARE_BASE='https://www.summercampforsongwriters.com/sponsorship-calculator';
 async function sharePackage(slot){
@@ -2064,11 +2108,10 @@ async function sharePackage(slot){
   const url=SHARE_BASE+'?p='+id;
   openModal(`<h3>Send “${esc(r.name)}”</h3>
     <div class="m-sub">anyone with this link opens the package, priced and ready</div>
-    <p>The link carries the build — quantities, rights, the whole board — never your rate card. It opens locked, so what you send is what they see first.</p>
     <input class="auth-input" id="shareUrl" type="text" readonly value="${esc(url)}" aria-label="Share link">
     <div class="m-btns">
-      <button class="btn btn-quiet" id="shareMail">Email it</button>
-      <button class="btn primary" id="shareCopy">Copy link</button>
+      <button class="btn tiered" id="shareMail">Email it</button>
+      <button class="btn tiered" id="shareCopy">Copy link</button>
     </div>`);
   const inp=$('shareUrl');
   inp.onclick=()=>inp.select();
