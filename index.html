@@ -2063,16 +2063,19 @@ function openAgreement(stArg, pkgName){
   html=html.replace("window.addEventListener('load',function(){setTimeout(function(){try{window.print()}catch(e){}},700)});","");
   const panel=$('agrPanel'), fr=$('agrFrame');
   fr.onload=()=>{
-    try{ fr.style.height=(fr.contentDocument.documentElement.scrollHeight+2)+'px'; }catch(e){}
+    /* unhide before measuring — a display:none frame reports zero height */
     panel.hidden=false;
+    const size=()=>{ try{ fr.style.height=(fr.contentDocument.documentElement.scrollHeight+2)+'px'; }catch(e){} };
+    size();
     if(!REDUCED){
       panel.style.overflow='hidden';
       panel.style.maxHeight='0px';
       panel.style.transition='max-height 1.3s ease';
       let done=false;
       const fin=()=>{ if(done)return; done=true;
-        panel.style.maxHeight='';panel.style.overflow='';panel.style.transition=''; };
-      requestAnimationFrame(()=>{ panel.style.maxHeight=panel.scrollHeight+'px'; setTimeout(fin,1600); });
+        panel.style.maxHeight='';panel.style.overflow='';panel.style.transition='';
+        size(); };
+      requestAnimationFrame(()=>{ size(); panel.style.maxHeight=panel.scrollHeight+'px'; setTimeout(fin,1600); });
     }
     if(document.documentElement.classList.contains('autofit'))
       panel.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});
