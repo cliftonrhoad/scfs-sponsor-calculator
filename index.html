@@ -2088,7 +2088,8 @@ function closeAgreement(){
   const panel=$('agrPanel'), fr=$('agrFrame');
   const fin=()=>{ panel.hidden=true;
     panel.style.maxHeight='';panel.style.overflow='';panel.style.transition='';
-    fr.removeAttribute('srcdoc'); };
+    /* detach first — clearing srcdoc fires onload for about:blank */
+    fr.onload=null; fr.removeAttribute('srcdoc'); };
   if(REDUCED){ fin(); }
   else {
     panel.style.overflow='hidden';
